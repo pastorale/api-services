@@ -1,17 +1,18 @@
 <?php
-// src/Solutions/AppBundle/Services/User/UserManager.php
+// src/Solutions/AppBundle/Services/Core/User/UserRetriever.php
 
 namespace AppBundle\Services\User;
 
-use AppBundle\Services\Traits\ContainerConstructorTrait;
+use AppBundle\Services\Core\Framework\ControllerService;
+use AppBundle\Traits\ContainerConstructorTrait;
 
-class UserManager
+class UserRetriever extends ControllerService
 {
     use ContainerConstructorTrait;
     private $container;
     /**
      * @param array $params
-     * @return \AppBundle\Entity\User\UserAccount
+     * @return \AppBundle\Entity\Core\User\User
      */
     public function findOne(array $params)
     {
