@@ -1,5 +1,5 @@
 <?php
-namespace AppBundle\Services\User;
+namespace AppBundle\Services\Core\User;
 
 
 use AppBundle\Services\Core\Framework\ControllerService;
