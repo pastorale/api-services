@@ -5,6 +5,7 @@ namespace AppBundle\Services\Core\User;
 
 use AppBundle\Services\Core\Framework\ControllerService;
 use AppBundle\Traits\ContainerConstructorTrait;
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 
 class UserRetriever extends ControllerService
 {
