@@ -6,7 +6,12 @@ use FOS\RestBundle\Controller\FOSRestController;
 
 class ControllerService extends FOSRestController
 {
-    use ContainerConstructorTrait;
+//    use ContainerConstructorTrait;
+
+    public function optionsAction()
+    {
+    
+    }
 
     public function getContainer()
     {
@@ -27,4 +32,5 @@ class ControllerService extends FOSRestController
         $errorMsg = ['code' => $status, 'message' => $msg];
         return $this->handleView($this->view($errorMsg, $status));
     }
+
 }
