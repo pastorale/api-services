@@ -1,8 +1,8 @@
 <?php
 namespace AppBundle\Services\Core\Framework;
 
-use AppBundle\Traits\ContainerConstructorTrait;
 use FOS\RestBundle\Controller\FOSRestController;
+use Symfony\Component\HttpFoundation\Response;
 
 class ControllerService extends FOSRestController
 {
@@ -10,7 +10,9 @@ class ControllerService extends FOSRestController
 
     public function optionsAction()
     {
-    
+        $response = new Response();
+        $response->headers->set('Allow', 'OPTIONS, GET, PATCH, POST, PUT');
+        return $response;
     }
 
     public function getContainer()
