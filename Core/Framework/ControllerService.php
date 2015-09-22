@@ -1,10 +1,11 @@
 <?php
 namespace AppBundle\Services\Core\Framework;
 
+use FOS\RestBundle\Routing\ClassResourceInterface;
 use FOS\RestBundle\Controller\FOSRestController;
 use Symfony\Component\HttpFoundation\Response;
 
-class ControllerService extends FOSRestController
+class ControllerService extends FOSRestController implements ClassResourceInterface
 {
 //    use ContainerConstructorTrait;
 
