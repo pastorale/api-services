@@ -2,9 +2,9 @@
 namespace AppBundle\Services\Core\User;
 
 
-use AppBundle\Services\Core\Framework\ControllerService;
+use AppBundle\Services\Core\Framework\BaseController;
 
-class UserManipulator extends ControllerService
+class UserManipulator extends BaseController
 {
 
 }
