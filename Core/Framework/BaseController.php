@@ -1,21 +1,11 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: mayxachtayvn
- * Date: 9/23/2015
- * Time: 10:00 AM
- */
 
 namespace AppBundle\Services\Core\Framework;
 
-
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\QueryBuilder;
 use FOS\RestBundle\Controller\FOSRestController;
 
 
-use FOS\RestBundle\Request\ParamFetcher;
-use FOS\RestBundle\Request\ParamFetcherInterface;
 use Hateoas\Configuration\Route;
 use Hateoas\Representation\Factory\PagerfantaFactory;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
@@ -81,13 +71,13 @@ class BaseController extends FOSRestController
         return $queryBuilder;
     }
 
-    protected function prepare(Request $request, QueryBuilder $queryBuilder, Route $route)
+    protected function prepare(Request $request, QueryBuilder $queryBuilder, $route, $routeParams)
     {
         $pagerfantaFactory = new PagerfantaFactory();
         // $paginatedCollection
         return $pagerfantaFactory->createRepresentation(
             $this->paginate($request, $this->filter($request, $queryBuilder)),
-            $route
+            new Route($route, $routeParams)
         );
     }
 
@@ -99,9 +89,9 @@ class BaseController extends FOSRestController
     protected function paginate(Request $request, QueryBuilder $queryBuilder)
     {
         $limit = $request->query->getInt('limit');
+        $page = $request->query->getInt('page');
         $limit = ($limit == 0) ? $this->container->getParameter('pagination_limit') : $limit;
-        $page = ($request->query->getInt('page') == 0) ? 1 : 0;
-
+        $page = ($page == 0) ? 1 : $page;
 
         $sortQuery = $request->query->get('sort');
         $sorts = explode(',', $sortQuery);
