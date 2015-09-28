@@ -71,12 +71,12 @@ class BaseController extends FOSRestController
         return $queryBuilder;
     }
 
-    protected function prepare(Request $request, QueryBuilder $queryBuilder, $route, $routeParams)
+    protected function prepare(Request $request, QueryBuilder $queryBuilder, $route, $routeParams, $fetchJoinCollection = true)
     {
         $pagerfantaFactory = new PagerfantaFactory();
         // $paginatedCollection
         return $pagerfantaFactory->createRepresentation(
-            $this->paginate($request, $this->filter($request, $queryBuilder)),
+            $this->paginate($request, $this->filter($request, $queryBuilder),$fetchJoinCollection),
             new Route($route, $routeParams)
         );
     }
@@ -84,9 +84,10 @@ class BaseController extends FOSRestController
     /**
      * @param Request $request
      * @param QueryBuilder $queryBuilder
+     * @param bool $fetchJoinCollection
      * @return Pagerfanta
      */
-    protected function paginate(Request $request, QueryBuilder $queryBuilder)
+    protected function paginate(Request $request, QueryBuilder $queryBuilder, $fetchJoinCollection = true)
     {
         $limit = $request->query->getInt('limit');
         $page = $request->query->getInt('page');
@@ -103,7 +104,7 @@ class BaseController extends FOSRestController
             }
         }
 
-        $adapter = new DoctrineORMAdapter($queryBuilder);
+        $adapter = new DoctrineORMAdapter($queryBuilder, $fetchJoinCollection);
         $pagerfanta = new Pagerfanta($adapter);
 
         $pagerfanta->setMaxPerPage($limit);
