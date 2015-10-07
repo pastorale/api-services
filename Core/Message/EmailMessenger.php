@@ -9,23 +9,26 @@ class EmailMessenger extends BaseController
 {
     public function prepareMessageContent(Message $message, MessageSetting $setting, array $vars)
     {
-        $templates = array('msg-' . $setting->getId() => $setting->getTemplate());
+        $keyBody = 'msg-body-' . $setting->getId();
+        $keySubject = 'msg-subject-' . $setting->getId();
+        $templates = array($keySubject => $setting->getSubjectTemplate(), $keyBody => $setting->getBodyTemplate());
         $env = new \Twig_Environment(new \Twig_Loader_Array($templates));
-        $message->setContent($env->render('hello', $vars));
+        $message->setSubject($env->render($keySubject, $vars));
+        $message->setBody($env->render($keyBody, $vars));
         return $message;
     }
 
     public function sendMessage(Message $message)
     {
-        $message = \Swift_Message::newInstance()
+        $email = \Swift_Message::newInstance()
             ->setSubject($message->getSubject())
             ->setFrom($message->getSender())
             ->setTo($message->getRecipient())
             ->setContentType("text/html")
-            ->setBody($message->getContent());
+            ->setBody($message->getBody());
 
-        $mailer = $this->mailer;
-        if (!$mailer->send($message)) {
+        $mailer = $this->get('mailer');
+        if (!$mailer->send($email)) {
 
         }
         $spool = $mailer->getTransport()->getSpool();
