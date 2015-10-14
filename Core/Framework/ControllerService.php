@@ -16,5 +16,12 @@ class ControllerService extends BaseController implements ClassResourceInterface
         $response->headers->set('Allow', 'OPTIONS, GET, PATCH, POST, PUT');
         return $response;
     }
+    /**
+     * @return \Symfony\Component\HttpFoundation\RequestStack
+     */
+    public function getRequest()
+    {
+        return $this->container->get('request_stack')->getCurrentRequest();
+    }
 
 }
