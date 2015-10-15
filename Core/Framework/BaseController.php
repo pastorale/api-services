@@ -31,8 +31,14 @@ class BaseController extends FOSRestController
 
     protected function returnMessage($msg, $status)
     {
-        $errorMsg = ['code' => $status, 'message' => $msg];
-        return $this->handleView($this->view($errorMsg, $status));
+        if ($status == 201) {
+            $response = $this->handleView($this->view(['code' => $status, 'message' => ''], $status));
+            $response->headers->set('Location', $this->get('router')->generate($msg[0], $msg[1]));
+        } else {
+            $response = $this->handleView($this->view(['code' => $status, 'message' => $msg], $status));
+        }
+
+        return $response;
     }
 
     protected function filter(Request $request, QueryBuilder $queryBuilder)
@@ -76,7 +82,7 @@ class BaseController extends FOSRestController
         $pagerfantaFactory = new PagerfantaFactory();
         // $paginatedCollection
         return $pagerfantaFactory->createRepresentation(
-            $this->paginate($request, $this->filter($request, $queryBuilder),$fetchJoinCollection),
+            $this->paginate($request, $this->filter($request, $queryBuilder), $fetchJoinCollection),
             new Route($route, $routeParams)
         );
     }
