@@ -46,13 +46,23 @@ class BaseController extends FOSRestController
         $searchQuery = $request->query->get('search');
         $searches = explode(',', $searchQuery);
         foreach ($searches as $search) {
-            preg_match('/(\w+?).(\w+?)(:|<|>|<=|>=)(%?\w+?%?),/', $search . ',', $matches);
+            preg_match('/(\w+?).(\w+?)(:|<|>|<=|>=|==|[null])(%?\w+?%?),/', $search . ',', $matches);
             if (count($matches) == 5) {
                 $objLabel = preg_replace('/[^[:alpha:]]/', '', $matches[1]);
                 $valueLabel = preg_replace('/[^[:alpha:]]/', '', $matches[2]);
                 $fieldLabel = $objLabel . '.' . $valueLabel;
                 $paramLabel = $objLabel . '_' . $valueLabel;
                 switch ($matches[3]) {
+                    case '[null]':
+                        if ($matches[4]) {
+                            $queryBuilder->andWhere($queryBuilder->expr()->isNull($fieldLabel));
+                        } else {
+                            $queryBuilder->andWhere($queryBuilder->expr()->isNotNull($fieldLabel));
+                        }
+                        break;
+                    case '==':
+                        $queryBuilder->andWhere($queryBuilder->expr()->eq($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $matches[4]);
+                        break;
                     case ':':
                         $queryBuilder->andWhere($queryBuilder->expr()->like($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $matches[4]);
                         break;
