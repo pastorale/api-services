@@ -9,12 +9,12 @@ use AppBundle\Entity\Core\Message\Message;
 
 class NotificationPusher extends BaseController {
 
-    public function push(Organisation $organisation, Message $message, Push $push) {
+    public function push(Organisation $organisation, Message $message, Push $push, $current) {
         //get paging
-        $current = $push->getCurrent();
+        $newCurrent = $push->getCurrent();
         $size = $push->getSize();
         $total = $push->getTotal();
-        if ($current < $total) {
+        if ($newCurrent <= $total && $newCurrent > $current) {
             //get possions
             $em = $this->getContainer()->get('doctrine')->getManager();
             $queryBuilder = $em->createQueryBuilder()
@@ -25,26 +25,30 @@ class NotificationPusher extends BaseController {
                     ->andWhere('position.active = ?2')->setParameter(2, true)
                     ->andWhere('position.createdAt <= ?3')->setParameter(3, $message->getCreatedAt())
                     ->setFirstResult($current * $size)
-                    ->setMaxResults($size);
+                    ->setMaxResults(($newCurrent - $current) * $size);
             $possions = $queryBuilder->getQuery()->getResult();
             //set message
             $tag = $this->getContainer()->get('doctrine')
                     ->getRepository('AppBundle:Core\Core\Tag')
                     ->findByName(Message::TAG_NOTIFICATION);
             foreach ($possions as $possion) {
-                $message = new Message();
-                $message->setRecipient($possion->getEmployee());
+                $messageUser = new Message();
+                $messageUser->setRecipient($possion->getEmployee());
+                $messageUser->setSubject($message->getSubject());
+                $messageUser->setBody($message->getBody());
                 if ($tag) {
-                    $message->addTag($tag);
+                    $messageUser->addTag($tag);
                 }
-                $em->persist($message);
+                $em->persist($messageUser);
                 $em->flush();
             }
             //update push
-            $push->setCurrent($current + 1);
+            $push->setCurrent($newCurrent);
             $em->persist($push);
             $em->flush();
+            return true;
         }
+        return false;
     }
 
 }
