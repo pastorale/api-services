@@ -15,7 +15,7 @@ class NotificationPusher extends BaseController {
         $size = $push->getSize();
         $total = $push->getTotal();
         if ($newCurrent <= $total && $newCurrent > $current) {
-            //get possions
+            //get positions
             $em = $this->getContainer()->get('doctrine')->getManager();
             $queryBuilder = $em->createQueryBuilder()
                     ->select('position')
@@ -26,14 +26,14 @@ class NotificationPusher extends BaseController {
                     ->andWhere('position.createdAt <= ?3')->setParameter(3, $message->getCreatedAt())
                     ->setFirstResult($current * $size)
                     ->setMaxResults(($newCurrent - $current) * $size);
-            $possions = $queryBuilder->getQuery()->getResult();
+            $positions = $queryBuilder->getQuery()->getResult();
             //set message
             $tag = $this->getContainer()->get('doctrine')
                     ->getRepository('AppBundle:Core\Core\Tag')
                     ->findByName(Message::TAG_NOTIFICATION);
-            foreach ($possions as $possion) {
+            foreach ($positions as $position) {
                 $messageUser = new Message();
-                $messageUser->setRecipient($possion->getEmployee());
+                $messageUser->setRecipient($position->getEmployee());
                 $messageUser->setSubject($message->getSubject());
                 $messageUser->setBody($message->getBody());
                 if ($tag) {
