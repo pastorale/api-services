@@ -31,7 +31,7 @@ class NotificationPusher extends BaseController
             $positions = $queryBuilder->getQuery()->getResult();
             //set message
             $tag = $this->getDoctrine()
-                ->getRepository('AppBundle:Core\Core\Tag')
+                ->getRepository('AppBundle:Core\Classification\Tag')
                 ->findOneBy(array('name' => Message::TAG_NOTIFICATION));
             foreach ($positions as $position) {
                 $messageUser = new Message();

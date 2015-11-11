@@ -2,12 +2,12 @@
 namespace AppBundle\Services\Core\Message;
 
 use AppBundle\Entity\Core\Message\Message;
-use AppBundle\Entity\Core\Message\MessageSetting;
+use AppBundle\Entity\Core\Message\MessageTemplate;
 use AppBundle\Services\Core\Framework\BaseController;
 
 class EmailMessenger extends BaseController
 {
-    public function prepareMessageContent(Message $message, MessageSetting $setting, array $vars)
+    public function prepareMessageContent(Message $message, MessageTemplate $setting, array $vars)
     {
         $keyBody = 'msg-body-' . $setting->getId();
         $keySubject = 'msg-subject-' . $setting->getId();
