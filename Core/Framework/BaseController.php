@@ -66,11 +66,11 @@ class BaseController extends FOSRestController
                     case '==':
                         $queryBuilder->andWhere($queryBuilder->expr()->eq($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $matches[4]);
                         break;
-                    case ':':
-                        $queryBuilder->andWhere($queryBuilder->expr()->like($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $matches[4]);
-                        break;
                     case '!:':
                         $queryBuilder->andWhere($queryBuilder->expr()->notLike($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $matches[4]);
+                        break;
+                    case ':':
+                        $queryBuilder->andWhere($queryBuilder->expr()->like($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $matches[4]);
                         break;
                     case '>':
                         $queryBuilder->andWhere($queryBuilder->expr()->gt($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $matches[4]);
