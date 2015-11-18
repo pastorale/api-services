@@ -22,10 +22,10 @@ class BaseController extends FOSRestController
 
     protected function handleFetch($object, $msg = "Resource cannot be found")
     {
-        if (isset($object)) {
-            return $this->handleView($this->view($object, 200));
-        } else {
+        if (empty($object)) {
             return $this->returnMessage($msg, 404);
+        } else {
+            return $this->handleView($this->view($object, 200));
         }
     }
 
