@@ -46,14 +46,14 @@ class BaseController extends FOSRestController
         $searchQuery = $request->query->get('search');
         $searches = explode(',', $searchQuery);
         foreach ($searches as $search) {
-            preg_match('/(\w+?).(\w+?)(:|!:|<|>|<=|>=|==|!=|[null])(%?\w+?%?),/', $search . ',', $matches);
+            preg_match('/(\w+?).(\w+?)(:|!:|<|>|<=|>=|==|!=|{null})(%?\w+?%?),/', $search . ',', $matches);
             if (count($matches) == 5) {
                 $objLabel = preg_replace('/[^[:alpha:]]/', '', $matches[1]);
                 $valueLabel = preg_replace('/[^[:alpha:]]/', '', $matches[2]);
                 $fieldLabel = $objLabel . '.' . $valueLabel;
                 $paramLabel = $objLabel . '_' . $valueLabel;
                 switch ($matches[3]) {
-                    case '[null]':
+                    case '{null}':
                         if ($matches[4]) {
                             $queryBuilder->andWhere($queryBuilder->expr()->isNull($fieldLabel));
                         } else {
@@ -88,8 +88,8 @@ class BaseController extends FOSRestController
             }
         }
 
-        $dql = $queryBuilder->getDQL();
-        $sql = $queryBuilder->getQuery()->getSQL();
+//        $dql = $queryBuilder->getDQL();
+//        $sql = $queryBuilder->getQuery()->getSQL();
         return $queryBuilder;
     }
 
