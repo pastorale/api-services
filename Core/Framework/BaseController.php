@@ -88,7 +88,7 @@ class BaseController extends FOSRestController
             }
         }
 
-//        $dql = $queryBuilder->getD{null}QL();
+//        $dql = $queryBuilder->getDQL();
 //        $sql = $queryBuilder->getQuery()->getSQL();
         return $queryBuilder;
     }
