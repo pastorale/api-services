@@ -7,11 +7,9 @@ use AppBundle\Entity\Organisation\Organisation;
 use AppBundle\Services\Core\Framework\BaseController;
 use AppBundle\Entity\Core\Message\Message;
 
-class NotificationPusher extends BaseController
-{
+class NotificationPusher extends BaseController {
 
-    public function push(Organisation $organisation, Message $message, Push $push, $current)
-    {
+    public function push(Organisation $organisation, Message $message, Push $push, $current) {
         //get paging
         $newCurrent = $push->getCurrent();
         $size = $push->getSize();
@@ -20,20 +18,21 @@ class NotificationPusher extends BaseController
             //get positions
             $em = $this->getContainer()->get('doctrine')->getManager();
             $queryBuilder = $em->createQueryBuilder()
-                ->select('position')
-                ->from('AppBundle:Organisation\Position', 'position')
-                ->join('position.employee', 'employee')
-                ->join('position.employer', 'employer', 'WITH', 'employer = ?1')->setParameter(1, $organisation)
-                ->andWhere('position.active = ?2')->setParameter(2, true)
-                ->andWhere('position.createdAt <= ?3')->setParameter(3, $message->getCreatedAt())
-                ->setFirstResult($current * $size)
-                ->setMaxResults(($newCurrent - $current) * $size);
+                    ->select('position')
+                    ->from('AppBundle:Organisation\Position', 'position')
+                    ->join('position.employee', 'employee')
+                    ->join('position.employer', 'employer', 'WITH', 'employer = ?1')->setParameter(1, $organisation)
+                    ->andWhere('position.active = ?2')->setParameter(2, true)
+                    ->andWhere('position.createdAt <= ?3')->setParameter(3, $message->getCreatedAt())
+                    ->setFirstResult($current * $size)
+                    ->setMaxResults(($newCurrent - $current) * $size);
             $positions = $queryBuilder->getQuery()->getResult();
             //set message
             $tag = $this->getDoctrine()
-                ->getRepository('AppBundle:Core\Classification\Tag')
-                ->findOneBy(array('name' => Message::TAG_NOTIFICATION));
+                    ->getRepository('AppBundle:Core\Classification\Tag')
+                    ->findOneBy(array('name' => Message::TAG_NOTIFICATION));
             foreach ($positions as $position) {
+                //save notifycation to db
                 $messageUser = new Message();
                 $messageUser->setRecipient($position->getEmployee());
                 $messageUser->setSubject($message->getSubject());
@@ -43,6 +42,22 @@ class NotificationPusher extends BaseController
                     $messageUser->addTag($tag);
                 }
                 $em->persist($messageUser);
+
+                //send notification to device
+                $client = $this->get('endroid.gcm.client');
+                $data = array(
+                    'subject' => $message->getSubject(),
+                    'message' => $message->getBody(),
+                );
+                $registrationIds = array('DEV-66ea042d-bb88-420b-a495-8d23e3efc826');
+//                $userDevices = $position->getEmployee()->getUserDevices();
+//                foreach ($userDevices as $userDevice) {
+//                    $registrationIds[] = $userDevice->getDeviceToken();
+//                }
+                if (count($registrationIds)) {
+                    $client->send($data, $registrationIds);
+                }
+                //end send
             }
             $em->flush();
             //update push
