@@ -49,11 +49,12 @@ class NotificationPusher extends BaseController {
                     'subject' => $message->getSubject(),
                     'message' => $message->getBody(),
                 );
-                $registrationIds = array('DEV-66ea042d-bb88-420b-a495-8d23e3efc826');
-//                $userDevices = $position->getEmployee()->getUserDevices();
-//                foreach ($userDevices as $userDevice) {
-//                    $registrationIds[] = $userDevice->getDeviceToken();
-//                }
+//                $registrationIds = array('DEV-66ea042d-bb88-420b-a495-8d23e3efc826');//for test
+                $registrationIds = array();
+                $userDevices = $position->getEmployee()->getUserDevices();
+                foreach ($userDevices as $userDevice) {
+                    $registrationIds[] = $userDevice->getDeviceToken();
+                }
                 if (count($registrationIds)) {
                     $client->send($data, $registrationIds);
                 }
