@@ -13,9 +13,11 @@ class ControllerService extends BaseController implements ClassResourceInterface
     public function optionsAction()
     {
         $response = new Response();
-        $response->headers->set('Allow', 'OPTIONS, GET, PATCH, POST, PUT');
+        $response->headers->set('Allow', 'OPTIONS, GET, PATCH, POST, PUT, DELETE');
         return $response;
     }
+
+
     /**
      * @return \Symfony\Component\HttpFoundation\RequestStack
      */
