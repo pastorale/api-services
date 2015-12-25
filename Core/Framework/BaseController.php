@@ -133,7 +133,7 @@ class BaseController extends FOSRestController
      * @param bool $fetchJoinCollection
      * @return Pagerfanta
      */
-    protected function paginate(Request $request, QueryBuilder $queryBuilder, $fetchJoinCollection = true)
+    protected function paginate(Request $request, QueryBuilder $queryBuilder, $fetchJoinCollection = true,$useOutputWalkers = false)
     {
         $limit = $request->query->getInt('limit');
         $page = $request->query->getInt('page');
@@ -150,7 +150,7 @@ class BaseController extends FOSRestController
             }
         }
 
-        $adapter = new DoctrineORMAdapter($queryBuilder, $fetchJoinCollection);
+        $adapter = new DoctrineORMAdapter($queryBuilder, $fetchJoinCollection,$useOutputWalkers);
         $pagerfanta = new Pagerfanta($adapter);
 
         $pagerfanta->setMaxPerPage($limit);
