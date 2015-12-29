@@ -38,20 +38,22 @@ class UserRetriever extends BaseController
         $cache = $this->container->get('memory_cache');
         $cachedUser = $cache->getValue($cache_ns, $container->get('security.token_storage')->getToken()->getUsername());
         if (empty($cachedUser)) {
-            throw new Exception('user was not cached properly');
+            throw new Exception('user was not cached properly'); // properly not yet logged in ???
         }
+
+
         $uid = $cachedUser['id'];
-
-        return $container->get('doctrine')->getRepository('AppBundle\Entity\Core\User\User')->find($uid);
-
-//        $userManager = $container->get('fos_user.user_manager');
-//        if (strpos($needle, '@') > 0) {
-//            $user = $userManager->findUserByEmail($needle);
-//        } else {
-//            $user = $userManager->findUserByUsername($needle);
-//        }
-//        return $user;
-
+        $user = $container->get('doctrine')->getRepository('AppBundle\Entity\Core\User\User')->find($uid);
+        if ($user->getEmail() === $needle) {
+            return $user;
+        }
+        $userManager = $container->get('fos_user.user_manager');
+        if (strpos($needle, '@') > 0) {
+            $user = $userManager->findUserByEmail($needle);
+        } else {
+            $user = $userManager->findUserByUsername($needle);
+        }
+        return $user;
     }
 
 
