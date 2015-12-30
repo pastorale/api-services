@@ -17,6 +17,8 @@ class NotificationPusher extends BaseController {
         if ($newCurrent <= $total && $newCurrent > $current) {
             //get positions
             $em = $this->getContainer()->get('doctrine')->getManager();
+
+            // todo: move this into its own repo
             $queryBuilder = $em->createQueryBuilder()
                     ->select('position')
                     ->from('AppBundle:Organisation\Position', 'position')

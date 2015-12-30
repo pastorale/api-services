@@ -52,10 +52,11 @@ class BaseController extends FOSRestController
             return $this->returnMessage($msg, 404);
         } else {
             if ($this->container->get('security.authorization_checker')->isGranted('VIEW', $object)) {
+                $this->container->get('app.core.security.authority')->nullifyProperties($object);
                 return $this->handleView($this->view($object, 200));
             } else {
-//                return $this->returnMessage('Unauthorised access', 401); // if no voter, default is denied
-                return $this->handleView($this->view($object, 200));
+                return $this->returnMessage('Unauthorised access', 401); // if no voter, default is denied
+//                return $this->handleView($this->view($object, 200));
             }
         }
     }
@@ -66,17 +67,15 @@ class BaseController extends FOSRestController
         $pagerfanta = $this->paginate($request, $this->filter($request, $queryBuilder), $fetchJoinCollection);
 
         $currentPageResults = $pagerfanta->getCurrentPageResults();
-        foreach ($currentPageResults as $object) {
-            if (!$this->container->get('security.authorization_checker')->isGranted('LIST', $object)) {
+//        foreach ($currentPageResults as $object) {
+//            if (!$this->container->get('security.authorization_checker')->isGranted('LIST', $object)) {
 //                return $this->returnMessage('Unauthorised operation', 401);
-            }
-            break;
-        }
+//            }
+//            break;
+//        }
 
         foreach ($currentPageResults as $object) {
-            if (!$this->container->get('security.authorization_checker')->isGranted('VIEW', $object)) {
-                // there is nothing we can do here.
-            }
+            $this->container->get('app.core.security.authority')->nullifyProperties($object);
         }
 
         // $paginatedCollection
