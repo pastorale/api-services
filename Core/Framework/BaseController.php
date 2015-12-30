@@ -67,12 +67,12 @@ class BaseController extends FOSRestController
         $pagerfanta = $this->paginate($request, $this->filter($request, $queryBuilder), $fetchJoinCollection);
 
         $currentPageResults = $pagerfanta->getCurrentPageResults();
-//        foreach ($currentPageResults as $object) {
-//            if (!$this->container->get('security.authorization_checker')->isGranted('LIST', $object)) {
-//                return $this->returnMessage('Unauthorised operation', 401);
-//            }
-//            break;
-//        }
+        foreach ($currentPageResults as $object) {
+            if (!$this->container->get('security.authorization_checker')->isGranted('LIST', $object)) {
+                return $this->returnMessage('Unauthorised operation', 401);
+            }
+            break;
+        }
 
         foreach ($currentPageResults as $object) {
             $this->container->get('app.core.security.authority')->nullifyProperties($object);
