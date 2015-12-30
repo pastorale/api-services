@@ -26,6 +26,22 @@ class UserRetriever extends BaseController
         return ['mode' => $mode, 'username' => $username, 'password' => $password];
     }
 
+    public function getLoggedinUser()
+    {
+        $container = $this->container;
+// check if the logged in is same as needle;
+        $cache_ns = User::CACHE_NS;
+        $cache = $this->container->get('memory_cache');
+        $cachedUser = $cache->getValue($cache_ns, $container->get('security.token_storage')->getToken()->getUsername());
+        if (empty($cachedUser)) {
+            throw new Exception('user was not cached properly'); // properly not yet logged in ???
+        }
+
+        $uid = $cachedUser['id'];
+        $user = $container->get('doctrine')->getRepository('AppBundle\Entity\Core\User\User')->find($uid);
+        return $user;
+    }
+
     /**
      * @param string $needle
      * @return \AppBundle\Entity\Core\User\User
@@ -34,19 +50,6 @@ class UserRetriever extends BaseController
     {
         $container = $this->container;
 
-        $cache_ns = User::CACHE_NS;
-        $cache = $this->container->get('memory_cache');
-        $cachedUser = $cache->getValue($cache_ns, $container->get('security.token_storage')->getToken()->getUsername());
-        if (empty($cachedUser)) {
-            throw new Exception('user was not cached properly'); // properly not yet logged in ???
-        }
-
-
-        $uid = $cachedUser['id'];
-        $user = $container->get('doctrine')->getRepository('AppBundle\Entity\Core\User\User')->find($uid);
-        if ($user->getEmail() === $needle) {
-            return $user;
-        }
         $userManager = $container->get('fos_user.user_manager');
         if (strpos($needle, '@') > 0) {
             $user = $userManager->findUserByEmail($needle);
