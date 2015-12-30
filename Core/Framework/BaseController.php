@@ -8,18 +8,20 @@ use FOS\RestBundle\Controller\FOSRestController;
 
 use Hateoas\Configuration\Route;
 use Hateoas\Representation\Factory\PagerfantaFactory;
+use Hateoas\Representation\PaginatedRepresentation;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
 use Pagerfanta\Pagerfanta;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Request;
 
 class BaseController extends FOSRestController
 {
     /**
-    {"patch":[
-    {"patch 1":"hello 1"}, {"patch 2":"hello 2"}, {"patch 2":"hello 2"},
-    { "op": "add", "path": "/a/b/c", "value": [ "foo", "bar" ] }
-    ]
-    }
+     * {"patch":[
+     * {"patch 1":"hello 1"}, {"patch 2":"hello 2"}, {"patch 2":"hello 2"},
+     * { "op": "add", "path": "/a/b/c", "value": [ "foo", "bar" ] }
+     * ]
+     * }
      *
      */
     public function patch($rootContext = '/', Request $request)
@@ -31,7 +33,7 @@ class BaseController extends FOSRestController
                 $op = $patch['op'];
             }
             if (array_key_exists('path', $patch)) {
-                $path = explode('/',$patch['path']);
+                $path = explode('/', $patch['path']);
             }
             $x = $patch;
         }
@@ -49,8 +51,38 @@ class BaseController extends FOSRestController
         if (empty($object)) {
             return $this->returnMessage($msg, 404);
         } else {
-            return $this->handleView($this->view($object, 200));
+            if ($this->container->get('security.authorization_checker')->isGranted('VIEW', $object)) {
+                return $this->handleView($this->view($object, 200));
+            } else {
+                return $this->returnMessage('Unauthorised access', 401);
+            }
         }
+    }
+
+    protected function handlePagination(Request $request, QueryBuilder $queryBuilder, $route, $routeParams, $fetchJoinCollection = true)
+    {
+        $pagerfantaFactory = new PagerfantaFactory();
+        $pagerfanta = $this->paginate($request, $this->filter($request, $queryBuilder), $fetchJoinCollection);
+
+        $currentPageResults = $pagerfanta->getCurrentPageResults();
+        foreach ($currentPageResults as $object) {
+            if (!$this->container->get('security.authorization_checker')->isGranted('LIST', $object)) {
+                return $this->returnMessage('Unauthorised operation', 401);
+            }
+            break;
+        }
+
+        foreach ($currentPageResults as $object) {
+            if (!$this->container->get('security.authorization_checker')->isGranted('VIEW', $object)) {
+                // there is nothing we can do here.
+            }
+        }
+
+        // $paginatedCollection
+        return $this->handleView($this->view($pagerfantaFactory->createRepresentation(
+            $pagerfanta,
+            new Route($route, $routeParams)
+        )));
     }
 
     protected function returnMessage($msg, $status)
@@ -117,6 +149,15 @@ class BaseController extends FOSRestController
         return $queryBuilder;
     }
 
+    /**
+     * @deprecated
+     * @param Request $request
+     * @param QueryBuilder $queryBuilder
+     * @param $route
+     * @param $routeParams
+     * @param bool|true $fetchJoinCollection
+     * @return PaginatedRepresentation
+     */
     protected function prepare(Request $request, QueryBuilder $queryBuilder, $route, $routeParams, $fetchJoinCollection = true)
     {
         $pagerfantaFactory = new PagerfantaFactory();
@@ -133,7 +174,7 @@ class BaseController extends FOSRestController
      * @param bool $fetchJoinCollection
      * @return Pagerfanta
      */
-    protected function paginate(Request $request, QueryBuilder $queryBuilder, $fetchJoinCollection = true,$useOutputWalkers = false)
+    protected function paginate(Request $request, QueryBuilder $queryBuilder, $fetchJoinCollection = true, $useOutputWalkers = false)
     {
         $limit = $request->query->getInt('limit');
         $page = $request->query->getInt('page');
@@ -150,7 +191,7 @@ class BaseController extends FOSRestController
             }
         }
 
-        $adapter = new DoctrineORMAdapter($queryBuilder, $fetchJoinCollection,$useOutputWalkers);
+        $adapter = new DoctrineORMAdapter($queryBuilder, $fetchJoinCollection, $useOutputWalkers);
         $pagerfanta = new Pagerfanta($adapter);
 
         $pagerfanta->setMaxPerPage($limit);
