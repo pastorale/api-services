@@ -42,6 +42,15 @@ class UserRetriever extends BaseController
         return $user;
     }
 
+    public function find($id)
+    {
+        if (is_numeric($id)) {
+            return $this->getDoctrine()->getRepository('AppBundle:Core\User\User')->find($id);
+        } else {
+            return $this->findOneByUsernameEmail($id);
+        }
+    }
+
     /**
      * @param string $needle
      * @return \AppBundle\Entity\Core\User\User
