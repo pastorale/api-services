@@ -18,9 +18,9 @@ trait ManipulationTrait
     protected $em = null;
 
 
-    protected function handleSubmission(AbstractType $formType, $object, Request $request)
+    protected function handleSubmission(AbstractType $formType, $object, Request $request, array $options = array())
     {
-        $form = $this->createForm($formType, $object);
+        $form = $this->createForm($formType, $object, $options);
         $form->handleRequest($request);
         if ($form->isValid()) {
             return $object;
@@ -71,8 +71,7 @@ trait ManipulationTrait
 
     private function handleAdd($new, $autoCommit)
     {
-        $canCreate = $this->container->get('security.authorization_checker')->isGranted(BaseVoter::CREATE, $new);
-        if ($canCreate) {
+        if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::CREATE, $new)) {
             if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::APPROVE, $new)) {
                 $new->setEnabled(true);
             } else {
