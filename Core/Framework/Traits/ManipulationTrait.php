@@ -1,6 +1,7 @@
 <?php
 namespace AppBundle\Services\Core\Framework\Traits;
 
+use AppBundle\Security\Authorisation\Voter\BaseVoter;
 use Doctrine\ORM\QueryBuilder;
 
 use FOS\RestBundle\View\View;
@@ -45,6 +46,12 @@ trait ManipulationTrait
             $this->returnStatus = 201;
             $this->returnRouteArray = array($route, $routeParams);
             return $this->handleAdd($new, $autoCommit);
+        } elseif ($new === null) {
+            return $this->handleDelete($old, $autoCommit);
+        } elseif (count($fields) === 0) { // edit the whole object
+            return $this->handleEdit($old, $new, $autoCommit);
+        } else {
+
         }
     }
 
@@ -64,7 +71,13 @@ trait ManipulationTrait
 
     private function handleAdd($new, $autoCommit)
     {
-        if ($this->container->get('security.authorization_checker')->isGranted('ADD', $new)) {
+        $canCreate = $this->container->get('security.authorization_checker')->isGranted(BaseVoter::CREATE, $new);
+        if ($canCreate) {
+            if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::APPROVE, $new)) {
+                $new->setEnabled(true);
+            } else {
+                $new->setEnabled(false);
+            }
             $em = $this->em->persist($new);
 
             if ($autoCommit) {
@@ -79,7 +92,7 @@ trait ManipulationTrait
 
     private function handleDelete($old, $autoCommit)
     {
-        if ($this->container->get('security.authorization_checker')->isGranted('DELETE', $old)) {
+        if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::DELETE, $old)) {
             $this->em->remove($old);
 
             if ($autoCommit) {
@@ -92,9 +105,14 @@ trait ManipulationTrait
         }
     }
 
-    private function handleEdit($new, $autoCommit)
+    private function handleEdit($old, $new, $autoCommit)
     {
-        if ($this->container->get('security.authorization_checker')->isGranted('EDIT', $new)) {
+        if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::EDIT, $new)) {
+            if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::APPROVE, $new)) {
+
+            } else {
+                $new->setEnabled($old->isEnabled());
+            }
             $this->em->persist($new);
 
             if ($autoCommit) {

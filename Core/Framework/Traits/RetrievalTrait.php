@@ -1,6 +1,7 @@
 <?php
 namespace AppBundle\Services\Core\Framework\Traits;
 
+use AppBundle\Security\Authorisation\Voter\BaseVoter;
 use Doctrine\ORM\QueryBuilder;
 
 use Hateoas\Configuration\Route;
@@ -19,7 +20,7 @@ trait RetrievalTrait
         if (empty($object)) {
             return $this->returnMessage($msg, 404);
         } else {
-            if ($this->container->get('security.authorization_checker')->isGranted('VIEW', $object)) {
+            if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::VIEW, $object)) {
                 $this->container->get('app.core.security.authority')->nullifyProperties($object);
                 return $this->handleView($this->view($object, 200));
             } else {
