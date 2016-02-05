@@ -73,7 +73,7 @@ trait ManipulationTrait
     {
         if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::CREATE, $new)) {
             if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::APPROVE, $new)) {
-                $new->setEnabled(true);
+//                $new->setEnabled(true);
             } else {
                 $new->setEnabled(false);
             }
