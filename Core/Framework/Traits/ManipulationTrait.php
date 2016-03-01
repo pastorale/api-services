@@ -13,12 +13,12 @@ use Symfony\Component\HttpFoundation\Request;
 
 trait ManipulationTrait
 {
-    protected $returnStatus = null;
-    protected $returnRouteArray = null;
+    protected $returnedStatus = null;
+    protected $returnedRouteArray = null;
     protected $em = null;
 
 
-    protected function handleSubmission(AbstractType $formType, $object, Request $request, array $options = array())
+    protected function handleSubmission($formType, $object, Request $request, array $options = array())
     {
         $form = $this->createForm($formType, $object, $options);
         $form->handleRequest($request);
@@ -29,22 +29,15 @@ trait ManipulationTrait
         }
     }
 
-    protected function handleManipulation($old, $new, $fields = array(), $route = null, $routeParams = null, $autoCommit = true)
+    protected function handleManipulation($old, $new, $fields = array(), $autoCommit = true)
     {
         if ($old === null && $new === null) {
             throw new \Exception('both objects are null in the manipulation operation');
         }
-        if ($route === null) {
-            $route = 'get_' . strtolower(get_class($new));
-        }
-        if ($routeParams === null) {
-            $routeParams = array(strtolower(get_class($new)) => $new->getId());
-        }
         $this->em = $this->getDoctrine()->getManager();
 
         if ($old === null) {
-            $this->returnStatus = 201;
-            $this->returnRouteArray = array($route, $routeParams);
+            $this->returnedStatus = 201;
             return $this->handleAdd($new, $autoCommit);
         } elseif ($new === null) {
             return $this->handleDelete($old, $autoCommit);
@@ -62,17 +55,23 @@ trait ManipulationTrait
         } else {
             $this->em->flush($new);
         }
-        if ($this->returnStatus == 201) {
-            return $this->returnMessage($this->returnRouteArray, 201);
+        if ($this->returnedStatus == 201) {
+            $className = join('', array_slice(explode('\\', strtolower(get_class($new))), -1));
+            $route = 'get_' . $className;
+            $routeParams = array($className => $new->getId());
+
+//        $this->returnedRouteArray = array($route, $routeParams);
+            return $this->returnMessage(array($route, $routeParams), 201);
         } else {
             return $this->returnMessage('', 204);
         }
     }
 
-    private function handleAdd($new, $autoCommit)
+    private
+    function handleAdd($new, $autoCommit)
     {
-        if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::CREATE, $new)) {
-            if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::APPROVE, $new)) {
+        if ($isGranted = $this->container->get('security.authorization_checker')->isGranted(BaseVoter::CREATE, $new)) {
+            if ($isGranted = $this->container->get('security.authorization_checker')->isGranted(BaseVoter::APPROVE, $new)) {
 //                $new->setEnabled(true);
             } else {
                 $new->setEnabled(false);
@@ -89,7 +88,8 @@ trait ManipulationTrait
         }
     }
 
-    private function handleDelete($old, $autoCommit)
+    private
+    function handleDelete($old, $autoCommit)
     {
         if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::DELETE, $old)) {
             $this->em->remove($old);
@@ -104,7 +104,8 @@ trait ManipulationTrait
         }
     }
 
-    private function handleEdit($old, $new, $autoCommit)
+    private
+    function handleEdit($old, $new, $autoCommit)
     {
         if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::EDIT, $new)) {
             if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::APPROVE, $new)) {
