@@ -45,7 +45,7 @@ trait PatchTrait
      * }
      */
 
-    protected function isGranted($attribute, $property = NULL)
+    protected function isPropertyGranted($attribute, $property = NULL)
     {
         return true;
     }
@@ -85,7 +85,11 @@ trait PatchTrait
 //Start of annotations reading
             foreach ($reflectionProperties as $property) {
                 if (!$authChecker->isGranted('EDIT', $object)) {
-                    if ($this->isGranted('EDIT', $property)) { // todo really
+                    if ($this->isPropertyGranted('EDIT', $property)) { // todo really
+                        // #1 primitive vars
+                        //// direct setter/getter
+                        // #2 object instance vars
+                        //// Learn and apply the ideas behind Form Transformer.
                         if (preg_match('/@var\s+([^\s]+)/', $property->getDocComment(), $matches)) {
                             list(, $type) = $matches;
                             if (in_array($type, self::NON_ENTITY_TYPES)) {
@@ -106,7 +110,7 @@ trait PatchTrait
         return $this->returnMessage('anh yeu em', 200);
     }
 
-    private function add($object,$property)
+    private function add($object, $property)
     {
 
     }
