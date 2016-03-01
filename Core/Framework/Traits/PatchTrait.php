@@ -68,6 +68,9 @@ trait PatchTrait
             if (array_key_exists('path', $patch)) {
                 $path = explode('/', $patch['path']);
             }
+            if (array_key_exists('value', $patch)) {
+                $value = $patch['value'];
+            }
 
             $reader = $this->container->get('annotation_reader');
             $authChecker = $this->container->get('security.authorization_checker');
@@ -85,21 +88,33 @@ trait PatchTrait
 //Start of annotations reading
             foreach ($reflectionProperties as $property) {
                 if (!$authChecker->isGranted('EDIT', $object)) {
-                    if ($this->isPropertyGranted('EDIT', $property)) { // todo really
-                        // #1 primitive vars
-                        //// direct setter/getter
-                        // #2 object instance vars
-                        //// Learn and apply the ideas behind Form Transformer.
-                        if (preg_match('/@var\s+([^\s]+)/', $property->getDocComment(), $matches)) {
-                            list(, $type) = $matches;
-                            if (in_array($type, self::NON_ENTITY_TYPES)) {
-                                if ($property->getName() == 'id') {
-                                    call_user_func_array(array($object, 'set' . ucfirst($property->getName())), array(0));
-                                } else {
-                                    call_user_func_array(array($object, 'set' . ucfirst($property->getName())), array(null));
-                                }
-                                continue;
+                    if (!$this->isPropertyGranted('EDIT', $property)) {
+                        return $this->returnMessage('Unauthorised Operation', 401);
+                    }
+                }
+
+                // #1 primitive vars
+                //// direct setter/getter
+                // #2 object instance vars
+                //// Learn and apply the ideas behind Form Transformer.
+                if (in_array($op, ["add"])) {
+                    if (preg_match('/@var\s+([^\s]+)/', $property->getDocComment(), $matches)) {
+                        list(, $type) = $matches;
+                        if (in_array($type, Authority::NON_ENTITY_TYPES)) {
+                            if ($property->getName() === $path[1]) {
+                                $method = $op . 'Primitive';
+                                return $this->$method($object, $property, $value);
                             }
+                            if ($property->getName() === $path[1]) {
+
+                            }
+                            if ($property->getName() == 'id') {
+//                                    call_user_func_array(array($object, 'set' . ucfirst($property->getName())), array(0));
+
+                            } else {
+//                                    call_user_func_array(array($object, 'set' . ucfirst($property->getName())), array(null));
+                            }
+                            continue;
                         }
                     }
                 }
@@ -110,9 +125,12 @@ trait PatchTrait
         return $this->returnMessage('anh yeu em', 200);
     }
 
-    private function add($object, $property)
+    private function addPrimitive($object, $property, $value)
     {
-
+        $old = clone $object;
+        call_user_func_array(array($object, 'set' . ucfirst($property->getName())), array($value[0]));
+//        return $this->returnMessage('processing ' . $property->getName(), 200);
+        return $this->handleManipulation($old, $object);
     }
 
 }
