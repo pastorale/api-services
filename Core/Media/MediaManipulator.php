@@ -4,8 +4,9 @@
 namespace AppBundle\Services\Core\Media;
 
 use AppBundle\Services\Core\Framework\BaseController;
+use Application\Sonata\MediaBundle\Entity\Media;
 use Application\Sonata\MediaBundle\Entity\MediaProcessingInterface;
-use Sonata\MediaBundle\Model\Media;
+use FOS\RestBundle\View\View;
 use Sonata\MediaBundle\Model\MediaInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 
@@ -14,6 +15,11 @@ use Symfony\Component\Process\Process;
 
 class MediaManipulator extends BaseController
 {
+    /**
+     * @param string $providerName
+     * @param null $allowedContentType
+     * @return View|mixed|object|Media
+     */
     public function handleMediumPost($providerName = 'sonata.media.provider.file', $allowedContentType = null)
     {
         $mediaManager = $this->get('sonata.media.manager.media');
