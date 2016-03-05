@@ -20,6 +20,10 @@ class BaseController extends FOSRestController
         return $this->container;
     }
 
+    public function getRequest()
+    {
+        return $this->container->get('request_stack')->getCurrentRequest();
+    }
 
     protected function returnMessage($msg, $status)
     {

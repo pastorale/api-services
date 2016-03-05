@@ -18,12 +18,4 @@ class ControllerService extends BaseController implements ClassResourceInterface
     }
 
 
-    /**
-     * @return \Symfony\Component\HttpFoundation\RequestStack
-     */
-    public function getRequest()
-    {
-        return $this->container->get('request_stack')->getCurrentRequest();
-    }
-
 }
