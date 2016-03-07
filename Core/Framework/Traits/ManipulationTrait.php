@@ -29,7 +29,7 @@ trait ManipulationTrait
         }
     }
 
-    protected function handleManipulation($old, $new, $fields = array(), $autoCommit = true)
+    protected function handleManipulation($old, $new, $autoCommit = true)
     {
         if ($old === null && $new === null) {
             throw new \Exception('both objects are null in the manipulation operation');
@@ -41,10 +41,8 @@ trait ManipulationTrait
             return $this->handleAdd($new, $autoCommit);
         } elseif ($new === null) {
             return $this->handleDelete($old, $autoCommit);
-        } elseif (count($fields) === 0) { // edit the whole object
+        } else { // edit the whole object
             return $this->handleEdit($old, $new, $autoCommit);
-        } else {
-
         }
     }
 
@@ -68,7 +66,7 @@ trait ManipulationTrait
     }
 
     private
-    function handleAdd($new, $autoCommit)
+    function handleAdd($new, $autoCommit = true)
     {
         if ($isGranted = $this->container->get('security.authorization_checker')->isGranted(BaseVoter::CREATE, $new)) {
             if ($isGranted = $this->container->get('security.authorization_checker')->isGranted(BaseVoter::APPROVE, $new)) {
@@ -89,11 +87,10 @@ trait ManipulationTrait
     }
 
     private
-    function handleDelete($old, $autoCommit)
+    function handleDelete($old, $autoCommit = true)
     {
         if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::DELETE, $old)) {
             $this->em->remove($old);
-
             if ($autoCommit) {
                 return $this->flush($old, 'Resource deleted successfully');
             } else {
@@ -105,7 +102,7 @@ trait ManipulationTrait
     }
 
     private
-    function handleEdit($old, $new, $autoCommit)
+    function handleEdit($old, $new, $autoCommit = true)
     {
         if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::EDIT, $new)) {
             if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::APPROVE, $new)) {
