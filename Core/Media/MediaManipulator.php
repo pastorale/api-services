@@ -15,6 +15,21 @@ use Symfony\Component\Process\Process;
 
 class MediaManipulator extends BaseController
 {
+    public function duplicateMedium(Media $medium)
+    {
+        $mediaManager = $this->get('sonata.media.manager.media');
+        $newMedium = clone $medium;
+
+//        $newMedium->setOrganisationOwner($medium->getOrganisationOwner());
+//        $newMedium->setUserOwner($medium->getUserOwner());
+//        $newMedium->setAppImageOrganisation($medium->getAppImageOrganisation());
+//        $newMedium->setProcessed($medium->isProcessed());
+//        $newMedium->setAudio($medium->isAudio());
+//        $newMedium->setAuthorName($medium->getAuthorName());
+
+        return $newMedium;
+    }
+
     /**
      * @param string $providerName
      * @param null $allowedContentType
