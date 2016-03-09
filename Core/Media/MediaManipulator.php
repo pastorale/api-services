@@ -94,8 +94,8 @@ class MediaManipulator extends BaseController
                 throw new ProcessFailedException($process);
             }
 
-            $x = $process->getOutput();
-            $y = $x;
+//            $x = $process->getOutput();
+//            $y = $x;
 
             $medium->setBinaryContent($fileName);
             $mediaManager = $this->get('sonata.media.manager.media');
