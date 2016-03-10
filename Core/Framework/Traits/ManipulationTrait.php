@@ -48,11 +48,11 @@ trait ManipulationTrait
 
     protected function flush($new, $msg = 'Resource updated/deleted successfully.')
     {
-        if ($new === null) {
+//        if ($new === null) {
             $this->em->flush();
-        } else {
-            $this->em->flush($new);
-        }
+//        } else {
+//            $this->em->flush($new);
+//        }
         if ($this->returnedStatus == 201) {
             $className = join('', array_slice(explode('\\', strtolower(get_class($new))), -1));
             $route = 'get_' . $className;
