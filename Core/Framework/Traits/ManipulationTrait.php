@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\Request;
 trait ManipulationTrait
 {
     protected $returnedStatus = null;
-    protected $returnedRouteArray = null;
     protected $em = null;
 
 
@@ -29,7 +28,7 @@ trait ManipulationTrait
         }
     }
 
-    protected function handleManipulation($old, $new, $autoCommit = true)
+    protected function handleManipulation($old, $new, $routeArray = null, $autoCommit = true)
     {
         if ($old === null && $new === null) {
             throw new \Exception('both objects are null in the manipulation operation');
@@ -38,7 +37,7 @@ trait ManipulationTrait
 
         if ($old === null) {
             $this->returnedStatus = 201;
-            return $this->handleAdd($new, $autoCommit);
+            return $this->handleAdd($new, $routeArray, $autoCommit);
         } elseif ($new === null) {
             return $this->handleDelete($old, $autoCommit);
         } else { // edit the whole object
@@ -46,17 +45,23 @@ trait ManipulationTrait
         }
     }
 
-    protected function flush($new, $msg = 'Resource updated/deleted successfully.')
+    protected function flush($new, $routeArray = null, $msg = 'Resource updated/deleted successfully.')
     {
 //        if ($new === null) {
-            $this->em->flush();
+        $this->em->flush();
 //        } else {
 //            $this->em->flush($new);
 //        }
         if ($this->returnedStatus == 201) {
-            $className = join('', array_slice(explode('\\', strtolower(get_class($new))), -1));
-            $route = 'get_' . $className;
-            $routeParams = array($className => $new->getId());
+            $className = lcfirst(join('', array_slice(explode('\\', get_class($new)), -1)));
+            if ($routeArray !== null) {
+                $route = $routeArray['route'];
+                $routeParams = $routeArray['routeParams'];
+                $routeParams[$className] = $new->getId();
+            } else {
+                $route = 'get_' . $className;
+                $routeParams = array($className => $new->getId());
+            }
 
 //        $this->returnedRouteArray = array($route, $routeParams);
             return $this->returnMessage(array($route, $routeParams), 201);
@@ -66,7 +71,7 @@ trait ManipulationTrait
     }
 
     private
-    function handleAdd($new, $autoCommit = true)
+    function handleAdd($new, $routeArray, $autoCommit = true)
     {
         if ($isGranted = $this->container->get('security.authorization_checker')->isGranted(BaseVoter::CREATE, $new)) {
             if ($isGranted = $this->container->get('security.authorization_checker')->isGranted(BaseVoter::APPROVE, $new)) {
@@ -77,7 +82,7 @@ trait ManipulationTrait
             $em = $this->em->persist($new);
 
             if ($autoCommit) {
-                return $this->flush($new, 'New Resource added successfully');
+                return $this->flush($new, $routeArray, 'New Resource added successfully');
             } else {
                 return null;
             }
@@ -92,7 +97,7 @@ trait ManipulationTrait
         if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::DELETE, $old)) {
             $this->em->remove($old);
             if ($autoCommit) {
-                return $this->flush($old, 'Resource deleted successfully');
+                return $this->flush($old, null, 'Resource deleted successfully');
             } else {
                 return null;
             }
@@ -113,7 +118,7 @@ trait ManipulationTrait
             $this->em->persist($new);
 
             if ($autoCommit) {
-                return $this->flush($new, 'Resource edited successfully');
+                return $this->flush($new, null, 'Resource edited successfully');
             } else {
                 return null;
             }
