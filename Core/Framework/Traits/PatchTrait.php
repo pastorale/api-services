@@ -97,7 +97,7 @@ trait PatchTrait
                 //// direct setter/getter
                 // #2 object instance vars
                 //// Learn and apply the ideas behind Form Transformer.
-                if (in_array($op, ["add"])) {
+                if (in_array($op, ["replace"])) {
                     if (preg_match('/@var\s+([^\s]+)/', $property->getDocComment(), $matches)) {
                         list(, $type) = $matches;
                         if (in_array($type, Authority::NON_ENTITY_TYPES)) {
@@ -131,6 +131,11 @@ trait PatchTrait
         call_user_func_array(array($object, 'set' . ucfirst($property->getName())), array($value[0]));
 //        return $this->returnMessage('processing ' . $property->getName(), 200);
         return $this->handleManipulation($old, $object);
+    }
+
+    private function replacePrimitive($object, $property, $value)
+    {
+
     }
 
 }

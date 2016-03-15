@@ -25,7 +25,7 @@ class BaseController extends FOSRestController
         return $this->container->get('request_stack')->getCurrentRequest();
     }
 
-    protected function returnMessage($msg, $status)
+    protected function returnMessage($msg, $status = 200)
     {
         if ($status == 201) {
             $response = $this->handleView($this->view(['code' => $status, 'message' => ''], $status));

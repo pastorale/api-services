@@ -109,8 +109,8 @@ trait ManipulationTrait
     private
     function handleEdit($old, $new, $autoCommit = true)
     {
-        if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::EDIT, $new)) {
-            if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::APPROVE, $new)) {
+        if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::EDIT, $old)) {
+            if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::APPROVE, $old)) {
 
             } else {
                 $new->setEnabled($old->isEnabled());
