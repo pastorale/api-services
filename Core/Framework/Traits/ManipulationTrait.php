@@ -2,6 +2,8 @@
 namespace AppBundle\Services\Core\Framework\Traits;
 
 use AppBundle\Security\Authorisation\Voter\BaseVoter;
+use Application\Sonata\MediaBundle\Entity\Media;
+use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\QueryBuilder;
 
 use FOS\RestBundle\View\View;
@@ -14,8 +16,10 @@ use Symfony\Component\HttpFoundation\Request;
 trait ManipulationTrait
 {
     protected $returnedStatus = null;
+    /**
+     * @var ObjectManager
+     */
     protected $em = null;
-
 
     protected function handleSubmission($formType, $object, Request $request, array $options = array())
     {
@@ -48,7 +52,9 @@ trait ManipulationTrait
     protected function flush($new, $routeArray = null, $msg = 'Resource updated/deleted successfully.')
     {
 //        if ($new === null) {
+
         $this->em->flush();
+
 //        } else {
 //            $this->em->flush($new);
 //        }
