@@ -101,7 +101,7 @@ class MediaManipulator extends BaseController
             $mediaManager = $this->get('sonata.media.manager.media');
             $mediaManager->save($medium);
             $processing->setProcessed(true); //$galleryMedia->setProcessed(true);
-            $processing->setExtraMedia(null);
+//            $processing->setExtraMedia(null);
             $em = $this->getDoctrine()->getManager();
             $em->persist($processing);
             $em->flush($processing);
