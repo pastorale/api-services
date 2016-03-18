@@ -24,7 +24,7 @@ class MediaRetriever extends BaseController
     {
         $provider = $this->get('sonata.media.provider.file');
         $dir = $this->get('sonata.media.adapter.filesystem.s3')->getDirectory();
-        $cdnPath = $provider->getCdnPath($dir . '/' . $provider->generatePath($media), true);
+        $cdnPath = str_replace('http', 'https', $provider->getCdnPath($dir . '/' . $provider->generatePath($media), true));
         $fileName = $media->getProviderReference();
         return $cdnPath . '/' . $fileName;
     }
