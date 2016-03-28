@@ -18,6 +18,26 @@ class ControllerService extends BaseController implements ClassResourceInterface
         return $response;
     }
 
+    public function fetchCollection($entity, $alias, $leftJoinArray, $routeArray)
+    {
+        $request = $this->getRequest();
+        $em = $this->getDoctrine()->getManager();
+        $queryBuilder = $em->createQueryBuilder()
+            ->select($alias)
+            ->from($entity, $alias);
+        foreach ($leftJoinArray as $leftJoin) {
+            $field = $leftJoin[0];
+            if (array_key_exists(1, $leftJoin)) {
+                $fieldAlias = $leftJoin[1];
+            }else{
+                $fieldAlias = $field;
+            }
+            $queryBuilder->leftJoin($alias . '.' . $field, $fieldAlias);
+        }
+
+        return $this->handlePagination($request, $queryBuilder, $routeArray[0], $routeArray[1], true);
+    }
+
     /**
      * @param string $owned
      * @param string $alias
@@ -26,7 +46,7 @@ class ControllerService extends BaseController implements ClassResourceInterface
      * @param array $routeArray
      * @return mixed
      */
-    public function fetchByOwner($owned, $alias, $owner, $id, $routeArray)
+    public function fetchByOwningSide($owned, $alias, $owner, $id, $routeArray)
     {
         $request = $this->getRequest();
         $em = $this->getDoctrine()->getManager();
