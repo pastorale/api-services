@@ -19,7 +19,7 @@ class ControllerService extends BaseController implements ClassResourceInterface
         return $response;
     }
 
-    public function fetchCollection($entity, $alias, $routeArray, $leftJoinArray = null, $joinArray = null)
+    public function fetchCollection($entity, $alias, $routeArray, $leftJoinArray = null, $joinArray = null, $conditionArray = null, $bidirectional = true)
     {
         $request = $this->getRequest();
         $em = $this->getDoctrine()->getManager();
@@ -43,7 +43,33 @@ class ControllerService extends BaseController implements ClassResourceInterface
             }
         }
 
-// todo join array here
+        if ($joinArray !== null) {
+            $field = null;
+            foreach ($joinArray as $join) {
+                $field = $join[0];
+                if (array_key_exists(1, $join)) {
+                    $fieldAlias = $join[1];
+                } else {
+                    $fieldAlias = $field;
+                }
+                if (array_key_exists(2, $join)) {
+                    $queryBuilder->join($field, $fieldAlias, 'WITH', $join[2]);
+                } else {
+                    $queryBuilder->join($field, $fieldAlias);
+                }
+            }
+        }
+
+        if (array_key_exists('where', $conditionArray)) {
+            $queryBuilder->where($conditionArray['where']);
+        }
+        if (array_key_exists('andWhere', $conditionArray)) {
+            $queryBuilder->where($conditionArray['andWhere']);
+        }
+        if (array_key_exists('parameters', $conditionArray)) {
+            $queryBuilder->setParameters($conditionArray['parameters']);
+        }
+
 
         return $this->handlePagination($request, $queryBuilder, $routeArray[0], $routeArray[1], true);
     }
@@ -56,7 +82,7 @@ class ControllerService extends BaseController implements ClassResourceInterface
      * @param array $routeArray
      * @return mixed
      */
-    public function fetchByOwningSide($owned, $alias, $owner, $id, $routeArray, $leftJoinArray = null, $joinArray = null)
+    public function fetchByOwningSide($owned, $alias, $owner, $id, $routeArray, $leftJoinArray = null, $joinArray = null, $conditionArray = null, $bidirectional = true)
     {
         $request = $this->getRequest();
         $em = $this->getDoctrine()->getManager();
