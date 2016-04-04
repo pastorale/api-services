@@ -4,6 +4,7 @@ namespace AppBundle\Services\Core\Framework;
 
 use AppBundle\Services\Core\Framework\Traits\ManipulationTrait;
 use AppBundle\Services\Core\Framework\Traits\PatchTrait;
+use AppBundle\Services\Core\Framework\Traits\QueryBuilderTrait;
 use AppBundle\Services\Core\Framework\Traits\RetrievalTrait;
 use FOS\RestBundle\Controller\FOSRestController;
 
@@ -11,7 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class BaseController extends FOSRestController
 {
+
     use RetrievalTrait;
+    use QueryBuilderTrait;
     use ManipulationTrait;
     use PatchTrait;
 
@@ -35,6 +38,17 @@ class BaseController extends FOSRestController
         }
 
         return $response;
+    }
+
+    protected function commitPostPut($formType, $entityInstance, $post = true, Request $request)
+    {
+        $entityClassName = get_class($entityInstance);
+        $object = $this->handleSubmission($formType, $entityInstance, $request, $post ? array() : array('method' => 'PUT'));
+        if ($object instanceof $entityClassName) {
+            return $this->handleManipulation(null, $object);
+        } else {
+            return $object;
+        }
     }
 
 }
