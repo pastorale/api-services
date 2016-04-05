@@ -40,12 +40,16 @@ class BaseController extends FOSRestController
         return $response;
     }
 
-    protected function commitPostPut($formType, $entityInstance, $post = true, Request $request)
+    protected function commitPostPut($formType, $entityInstance, $post = true, $routeArray = null, Request $request)
     {
         $entityClassName = get_class($entityInstance);
         $object = $this->handleSubmission($formType, $entityInstance, $request, $post ? array() : array('method' => 'PUT'));
         if ($object instanceof $entityClassName) {
-            return $this->handleManipulation(null, $object);
+            if ($post) {
+                return $this->handleManipulation(null, $object, $routeArray);
+            } else {
+                return $this->handleManipulation($object, $object, $routeArray);
+            }
         } else {
             return $object;
         }

@@ -32,7 +32,7 @@ trait ManipulationTrait
         }
     }
 
-    protected function handleManipulation($old, $new, $routeArray = null, $autoCommit = true)
+    protected function handleManipulation($old, $new = null, $routeArray = null, $autoCommit = true)
     {
         if ($old === null && $new === null) {
             throw new \Exception('both objects are null in the manipulation operation');
