@@ -61,7 +61,7 @@ trait RetrievalTrait
         foreach ($searches as $search) {
             preg_match('/(\w+?).(\w+?)(:|!:|<|>|<=|>=|==|!=|{null})(%?\w+?%?),/', $search . ',', $matches);
 //            preg_match('/(\w+?).(\w+?)(:|!:|<|>|<=|>=|==|!=|{null})(%?\w+( +\w+)+%?),/', $search . ',', $matches); // to match a phrase
-            if (count($matches) >= 5) { // should be ideally == 5 and not >= 5
+            if (count($matches) == 5) { // should be ideally == 5 and not >= 5
                 $objLabel = preg_replace('/[^[:alpha:]]/', '', $matches[1]);
                 $valueLabel = preg_replace('/[^[:alpha:]]/', '', $matches[2]);
                 $fieldLabel = $objLabel . '.' . $valueLabel;
