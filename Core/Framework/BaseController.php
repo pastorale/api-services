@@ -8,6 +8,7 @@ use AppBundle\Services\Core\Framework\Traits\QueryBuilderTrait;
 use AppBundle\Services\Core\Framework\Traits\RetrievalTrait;
 use FOS\RestBundle\Controller\FOSRestController;
 
+use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 
 class BaseController extends FOSRestController
@@ -43,12 +44,16 @@ class BaseController extends FOSRestController
     protected function commitPostPut($formType, $entityInstance, $post = true, $routeArray = null, Request $request)
     {
         $entityClassName = get_class($entityInstance);
-        $object = $this->handleSubmission($formType, $entityInstance, $request, $post ? array() : array('method' => 'PUT'));
+        if ($formType !== null) {
+            $object = $this->handleSubmission($formType, $entityInstance, $request, $post ? array() : array('method' => 'PUT'));
+        } else {
+            $object = $entityInstance;
+        }
         if ($object instanceof $entityClassName) {
             if ($post) {
                 return $this->handleManipulation(null, $object, $routeArray);
             } else {
-                return $this->handleManipulation($object, $object, $routeArray);
+                return $this->handleManipulation($entityInstance, $object, $routeArray);
             }
         } else {
             return $object;
