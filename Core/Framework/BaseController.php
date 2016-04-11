@@ -55,7 +55,7 @@ class BaseController extends FOSRestController
         }
         if ($object instanceof $entityClassName) {
             if ($parentInstance !== null) {
-                $parentClassNameArray = Parser::parseClassname($parentInstance);
+                $parentClassNameArray = Parser::parseClassname(get_class($parentInstance));
                 $parentPropName = array_key_exists('property_name', $parent) ? $parent['property_name'] : strtolower($parentClassNameArray['class_name']);
 
 //                call_user_func([$entityClassName, 'set' . ucfirst($parentPropName)], $entityInstance);
