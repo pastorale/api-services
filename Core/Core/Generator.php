@@ -3,7 +3,7 @@ namespace AppBundle\Services\Core\Core;
 
 class Generator
 {
-    function generateRandomString($length = 12)
+    public static function generateRandomString($length = 12)
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);

@@ -2,6 +2,7 @@
 
 namespace AppBundle\Services\Core\Framework;
 
+use AppBundle\Services\Core\Core\Parser;
 use AppBundle\Services\Core\Framework\Traits\ManipulationTrait;
 use AppBundle\Services\Core\Framework\Traits\PatchTrait;
 use AppBundle\Services\Core\Framework\Traits\QueryBuilderTrait;
@@ -41,15 +42,35 @@ class BaseController extends FOSRestController
         return $response;
     }
 
-    protected function commitPostPut($formType, $entityInstance, $post = true, $routeArray = null, Request $request)
+    protected function commitPostPut($formType, $entityInstance, $post = true, $routeArray = null, Request $request, $parent = array())
     {
+        $parentInstance = array_key_exists('instance', $parent) ? $parent['instance'] : null;
+
         $entityClassName = get_class($entityInstance);
+
         if ($formType !== null) {
             $object = $this->handleSubmission($formType, $entityInstance, $request, $post ? array() : array('method' => 'PUT'));
         } else {
             $object = $entityInstance;
         }
         if ($object instanceof $entityClassName) {
+            if ($parentInstance !== null) {
+                $parentClassNameArray = Parser::parseClassname($parentInstance);
+                $parentPropName = array_key_exists('property_name', $parent) ? $parent['property_name'] : strtolower($parentClassNameArray['class_name']);
+
+//                call_user_func([$entityClassName, 'set' . ucfirst($parentPropName)], $entityInstance);
+                $getParentMethod = 'get' . ucfirst($parentPropName);
+                $parentInstanceFromEntity = $entityInstance->$getParentMethod();
+                $entityShortClassName = Parser::parseClassname($entityClassName)['class_name'];
+                if ($parentInstanceFromEntity !== null) {
+                    if ($parentInstanceFromEntity->getId() !== $parentInstance->getId()) {
+                        $removeChildMethod = 'remove' . $entityShortClassName;
+                        $parentInstanceFromEntity->$removeChildMethod($entityInstance);
+                    }
+                }
+                $addChildMethod = 'add' . $entityShortClassName;
+                $parentInstance->$addChildMethod($entityInstance);
+            }
             if ($post) {
                 return $this->handleManipulation(null, $object, $routeArray);
             } else {
