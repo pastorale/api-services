@@ -67,7 +67,19 @@ trait QueryBuilderTrait
         $queryBuilder
             ->select($selectAlias)
             ->from($entity, $entityAlias);
+//        if ($leftJoinArray !== null) {
+//            foreach ($leftJoinArray as $leftJoinArray) {
+//                $field = $leftJoin[0];
+//                if (array_key_exists(1, $leftJoin)) {
+//                    $fieldAlias = $leftJoin[1];
+//                } else {
+//                    $fieldAlias = explode('.', $field)[1];
+//                }
+//                $queryBuilder->leftJoin($alias . '.' . $field, $fieldAlias);
+//            }
+//        }
         if ($leftJoinArray !== null) {
+            $field = null;
             foreach ($leftJoinArray as $leftJoin) {
                 $field = $leftJoin[0];
                 if (array_key_exists(1, $leftJoin)) {
@@ -75,7 +87,11 @@ trait QueryBuilderTrait
                 } else {
                     $fieldAlias = explode('.', $field)[1];
                 }
-                $queryBuilder->leftJoin($alias . '.' . $field, $fieldAlias);
+                if (array_key_exists(2, $leftJoin)) {
+                    $queryBuilder->leftJoin($field, $fieldAlias, 'WITH', $leftJoin[2]);
+                } else {
+                    $queryBuilder->leftJoin($field, $fieldAlias);
+                }
             }
         }
 
