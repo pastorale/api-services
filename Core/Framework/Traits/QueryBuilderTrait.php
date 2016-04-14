@@ -50,7 +50,6 @@ trait QueryBuilderTrait
      * @param null $conditionArray
      * @return QueryBuilder
      */
-
     public function prepareCollectionQB($entity, $alias, $leftJoinArray = null, $joinArray = null, $conditionArray = null)
     {
         $em = $this->getDoctrine()->getManager();
