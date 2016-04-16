@@ -26,6 +26,21 @@ class UserRetriever extends BaseController
         return ['mode' => $mode, 'username' => $username, 'password' => $password];
     }
 
+    public function getLoggedInUsername()
+    {
+        return $this->decodeUserKey($this->container->get('security.token_storage')->getToken()->getUsername())['username'];
+    }
+
+    public function getLoggedInPassword()
+    {
+        return $this->decodeUserKey($this->container->get('security.token_storage')->getToken()->getUsername())['password'];
+    }
+
+    public function getLoggedInMode()
+    {
+        return $this->decodeUserKey($this->container->get('security.token_storage')->getToken()->getUsername())['mode'];
+    }
+
     public function getLoggedinUser()
     {
         $container = $this->container;
