@@ -26,7 +26,7 @@ trait ManipulationTrait
     {
         $form = $this->createForm($formType, $object, $options);
 
-        FormHelper::removeFields($request->request->all(), $form);
+//        FormHelper::removeFields($request->request->all(), $form);
 
         $form->handleRequest($request);
         if ($form->isValid()) {
