@@ -8,6 +8,7 @@ use Doctrine\ORM\QueryBuilder;
 
 use FOS\RestBundle\View\View;
 use Hateoas\Configuration\Route;
+use Sonata\CoreBundle\Form\FormHelper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Form\AbstractType;
@@ -24,6 +25,9 @@ trait ManipulationTrait
     protected function handleSubmission($formType, $object, Request $request, array $options = array())
     {
         $form = $this->createForm($formType, $object, $options);
+
+        FormHelper::removeFields($request->request->all(), $form);
+
         $form->handleRequest($request);
         if ($form->isValid()) {
             return $object;
