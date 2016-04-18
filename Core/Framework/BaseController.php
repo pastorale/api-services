@@ -5,6 +5,7 @@ namespace AppBundle\Services\Core\Framework;
 use AppBundle\Services\Core\Core\Parser;
 use AppBundle\Services\Core\Framework\Traits\ManipulationTrait;
 use AppBundle\Services\Core\Framework\Traits\PatchTrait;
+use AppBundle\Services\Core\Framework\Traits\QBSecurityTrait;
 use AppBundle\Services\Core\Framework\Traits\QueryBuilderTrait;
 use AppBundle\Services\Core\Framework\Traits\RetrievalTrait;
 use FOS\RestBundle\Controller\FOSRestController;
@@ -17,6 +18,7 @@ class BaseController extends FOSRestController
 
     use RetrievalTrait;
     use QueryBuilderTrait;
+    use QBSecurityTrait;
     use ManipulationTrait;
     use PatchTrait;
 
