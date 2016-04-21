@@ -121,10 +121,12 @@ trait QueryBuilderTrait
     public function prepareQBByOwningSide($owned, $ownedAlias, $owner, $ownerAlias, $ownerId, $leftJoinArray = null, $joinArray = null, $conditionArray = null, $bidirectional = true)
     {
         if ($bidirectional) {
-            $joinArray[][] = $ownedAlias . '.' . $ownerAlias;
+            if ($joinArray === null) {
+                $joinArray[][] = $ownedAlias . '.' . $ownerAlias;
+            }
             $qB = $this->prepareCollectionQB($owned, $ownedAlias, $leftJoinArray, $joinArray, $conditionArray);
             $qB->where($qB->expr()->eq($ownerAlias . '.id', ':id'))->setParameter('id', $ownerId);
-        } else { // if the owned doesn't that he/she is owned by the owner.
+        } else { // if the owned doesn't know that he/she is owned by the owner.
             if (array_key_exists('sub-query', $conditionArray)) {
                 $subQueryConditionArray = $conditionArray['sub-query'];
             }
