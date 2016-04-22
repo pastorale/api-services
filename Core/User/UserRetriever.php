@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 class UserRetriever extends BaseController
 {
     const USERNAME_SEPARATOR = ' endofusername ';
-    const PASSWORD_SEPARATOR = ' endofpassword ';
+    const PASSWORD_SEPARATOR = ' endofpassword '; // unnecessary
 
     public function encodeUserKey($mode, $username, $password)
     {
