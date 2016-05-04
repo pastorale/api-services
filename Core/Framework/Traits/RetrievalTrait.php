@@ -59,44 +59,51 @@ trait RetrievalTrait
         $searchQuery = $request->query->get('search');
         $searches = explode(',', $searchQuery);
         foreach ($searches as $search) {
-            preg_match('/(\w+?).(\w+?)(:|!:|<|>|<=|>=|==|!=|{null})(%?\w+?%?),/', $search . ',', $matches);
+            // test string: user.email:dinis.bean-123df@dfecio.yahoo.com,   https://regex101.com/#pcre
+            preg_match('/(\w+?.\w+?)(:|!:|<|>|<=|>=|==|!=|{null})(%?[a-zA-Z0-9_.@-]+?%?),/', $search . ',', $matches);
+
+            //            preg_match('/(\w+?).(\w+?)(:|!:|<|>|<=|>=|==|!=|{null})(%?\w+?%?),/', $search . ',', $matches);
 //            preg_match('/(\w+?).(\w+?)(:|!:|<|>|<=|>=|==|!=|{null})(%?\w+( +\w+)+%?),/', $search . ',', $matches); // to match a phrase
-            if (count($matches) == 5) { // should be ideally == 5 and not >= 5
-                $objLabel = preg_replace('/[^[:alpha:]]/', '', $matches[1]);
-                $valueLabel = preg_replace('/[^[:alpha:]]/', '', $matches[2]);
-                $fieldLabel = $objLabel . '.' . $valueLabel;
-                $paramLabel = $objLabel . '_' . $valueLabel;
-                switch ($matches[3]) {
+            if (count($matches) == 4) {
+//                $objLabel = preg_replace('/[^[:alpha:]]/', '', $matches[1]);
+//                $valueLabel = preg_replace('/[^[:alpha:]]/', '', $matches[2]);
+//                $fieldLabel = $objLabel . '.' . $valueLabel;
+//                $paramLabel = $objLabel . '_' . $valueLabel;
+                $fieldLabel = $paramLabel = preg_replace('/[^[a-zA-Z0-9_.@-]]/', '', $matches[1]);
+                $paramLabel = preg_replace('/[.]/', '_', $paramLabel);
+                $searchValue = $matches[3];
+                $comparison = $matches[2];
+                switch ($comparison) {
                     case '{null}':
-                        if ($matches[4]) {
+                        if ($searchValue) {
                             $queryBuilder->andWhere($queryBuilder->expr()->isNull($fieldLabel));
                         } else {
                             $queryBuilder->andWhere($queryBuilder->expr()->isNotNull($fieldLabel));
                         }
                         break;
                     case '!=':
-                        $queryBuilder->andWhere($queryBuilder->expr()->neq($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $matches[4]);
+                        $queryBuilder->andWhere($queryBuilder->expr()->neq($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $searchValue);
                         break;
                     case '==':
-                        $queryBuilder->andWhere($queryBuilder->expr()->eq($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $matches[4]);
+                        $queryBuilder->andWhere($queryBuilder->expr()->eq($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $searchValue);
                         break;
                     case '!:':
-                        $queryBuilder->andWhere($queryBuilder->expr()->notLike($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $matches[4]);
+                        $queryBuilder->andWhere($queryBuilder->expr()->notLike($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $searchValue);
                         break;
                     case ':':
-                        $queryBuilder->andWhere($queryBuilder->expr()->like($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $matches[4]);
+                        $queryBuilder->andWhere($queryBuilder->expr()->like($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $searchValue);
                         break;
                     case '>':
-                        $queryBuilder->andWhere($queryBuilder->expr()->gt($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $matches[4]);
+                        $queryBuilder->andWhere($queryBuilder->expr()->gt($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $searchValue);
                         break;
                     case '>=':
-                        $queryBuilder->andWhere($queryBuilder->expr()->gte($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $matches[4]);
+                        $queryBuilder->andWhere($queryBuilder->expr()->gte($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $searchValue);
                         break;
                     case '<=':
-                        $queryBuilder->andWhere($queryBuilder->expr()->lte($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $matches[4]);
+                        $queryBuilder->andWhere($queryBuilder->expr()->lte($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $searchValue);
                         break;
                     case '<':
-                        $queryBuilder->andWhere($queryBuilder->expr()->lt($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $matches[4]);
+                        $queryBuilder->andWhere($queryBuilder->expr()->lt($fieldLabel, ':' . $paramLabel))->setParameter($paramLabel, $searchValue);
                         break;
                 }
             }
