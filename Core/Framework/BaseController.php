@@ -49,7 +49,7 @@ class BaseController extends FOSRestController
         $parentInstance = array_key_exists('instance', $parent) ? $parent['instance'] : null;
 
         $entityClassName = get_class($entityInstance);
-
+        // $object is the object retrieved from the form, could be either View or entityInstance
         if ($formType !== null) {
             $object = $this->handleSubmission($formType, $entityInstance, $request, $post ? array() : array('method' => 'PUT'));
         } else {
@@ -81,7 +81,7 @@ class BaseController extends FOSRestController
         } else {
             return $this->handleManipulation($entityInstance, $object, $routeArray);
         }
+
     }
-}
 
 }
