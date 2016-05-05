@@ -133,7 +133,7 @@ trait ManipulationTrait
                 return null;
             }
         } else {
-            return $this->returnMessage('Unauthorised operation', 401); // if no voter, default is denied
+            return $this->returnMessage('UNAUTHORISED_EDIT_OPERATION', 401); // if no voter, default is denied
         }
     }
 
