@@ -55,32 +55,33 @@ class BaseController extends FOSRestController
         } else {
             $object = $entityInstance;
         }
-        if ($object instanceof $entityClassName) {
-            if ($parentInstance !== null) {
-                $parentClassNameArray = Parser::parseClassname(get_class($parentInstance));
-                $parentPropName = array_key_exists('property_name', $parent) ? $parent['property_name'] : strtolower($parentClassNameArray['class_name']);
-
-//                call_user_func([$entityClassName, 'set' . ucfirst($parentPropName)], $entityInstance);
-                $getParentMethod = 'get' . ucfirst($parentPropName);
-                $parentInstanceFromEntity = $entityInstance->$getParentMethod();
-                $entityShortClassName = Parser::parseClassname($entityClassName)['class_name'];
-                if ($parentInstanceFromEntity !== null) {
-                    if ($parentInstanceFromEntity->getId() !== $parentInstance->getId()) {
-                        $removeChildMethod = 'remove' . $entityShortClassName;
-                        $parentInstanceFromEntity->$removeChildMethod($entityInstance);
-                    }
-                }
-                $addChildMethod = 'add' . $entityShortClassName;
-                $parentInstance->$addChildMethod($entityInstance);
-            }
-            if ($post) {
-                return $this->handleManipulation(null, $object, $routeArray);
-            } else {
-                return $this->handleManipulation($entityInstance, $object, $routeArray);
-            }
-        } else {
+//        if ($object instanceof $entityClassName) {}
+        if ($object instanceof View) {
             return $object;
         }
+        if ($parentInstance !== null) {
+            $parentClassNameArray = Parser::parseClassname(get_class($parentInstance));
+            $parentPropName = array_key_exists('property_name', $parent) ? $parent['property_name'] : strtolower($parentClassNameArray['class_name']);
+
+//                call_user_func([$entityClassName, 'set' . ucfirst($parentPropName)], $entityInstance);
+            $getParentMethod = 'get' . ucfirst($parentPropName);
+            $parentInstanceFromEntity = $entityInstance->$getParentMethod();
+            $entityShortClassName = Parser::parseClassname($entityClassName)['class_name'];
+            if ($parentInstanceFromEntity !== null) {
+                if ($parentInstanceFromEntity->getId() !== $parentInstance->getId()) {
+                    $removeChildMethod = 'remove' . $entityShortClassName;
+                    $parentInstanceFromEntity->$removeChildMethod($entityInstance);
+                }
+            }
+            $addChildMethod = 'add' . $entityShortClassName;
+            $parentInstance->$addChildMethod($entityInstance);
+        }
+        if ($post) {
+            return $this->handleManipulation(null, $object, $routeArray);
+        } else {
+            return $this->handleManipulation($entityInstance, $object, $routeArray);
+        }
     }
+}
 
 }
