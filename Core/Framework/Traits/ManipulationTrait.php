@@ -53,8 +53,14 @@ trait ManipulationTrait
         }
     }
 
-    protected function flush($new, $routeArray = null, $msg = 'Resource updated/deleted successfully.')
+    protected function flush($new, $routeArray = null, $msg = null, $returnedStatus = null)
     {
+        if ($msg === null) {
+            $msg = 'Resource updated/deleted successfully.';
+        }
+        if ($returnedStatus === null) {
+            $returnedStatus = $this->returnedStatus;
+        }
 //        if ($new === null) {
 
         $this->em->flush();
@@ -62,7 +68,7 @@ trait ManipulationTrait
 //        } else {
 //            $this->em->flush($new);
 //        }
-        if ($this->returnedStatus == 201) {
+        if ($returnedStatus == 201) {
             $className = lcfirst(join('', array_slice(explode('\\', get_class($new)), -1)));
             if ($routeArray !== null) {
                 $route = $routeArray['route'];
@@ -107,7 +113,7 @@ trait ManipulationTrait
         if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::DELETE, $old)) {
             $this->em->remove($old);
             if ($autoCommit) {
-                return $this->flush($old, null, 'Resource deleted successfully');
+                return $this->flush($old, null, 'Resource deleted successfully', 204);
             } else {
                 return null;
             }
@@ -128,7 +134,7 @@ trait ManipulationTrait
             $this->em->persist($new);
 
             if ($autoCommit) {
-                return $this->flush($new, null, 'Resource edited successfully');
+                return $this->flush($new, null, 'Resource edited successfully', 204);
             } else {
                 return null;
             }
