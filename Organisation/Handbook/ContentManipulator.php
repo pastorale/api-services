@@ -18,7 +18,7 @@ class ContentManipulator extends BaseController
 //        $criteria = Criteria::create();
 //        $expr = $criteria->expr();
 //        $criteria->andWhere($expr->orX($expr->eq('imageHandbookContent', $content), $expr->eq('pdfHandbookContent', $content)));
-        $mediaList = $mediaManager->findBy(['imageHandbookContent'=>$content,'pdfHandbookContent'=>$content]);
+        $mediaList = $mediaManager->findBy(['imageHandbookContent'=>$content->getId(),'pdfHandbookContent'=>$content->getId()]);
         if ($mediaList !== null) {
             foreach ($mediaList as $media) {
                 $mediaManager->delete($media);
