@@ -8,6 +8,7 @@ class ContentManipulator extends BaseController
 {
     public function deleteContent(Content $content)
     {
+        $mediaManager = $this->container->get('sonata.media.manager.media');
         $request = $this->getRequest();
         $locale = $request->get('locale', $request->getLocale());
         $em = $this->getDoctrine()->getManager();
@@ -18,23 +19,23 @@ class ContentManipulator extends BaseController
             if (array_key_exists('imageId', $contentWithLocale)) {
                 $imageId = $contentWithLocale['imageId'];
                 if ($imageId !== null) {
-                    $image = $this->get('sonata.media.manager.media')->find($imageId);
+                    $image = $mediaManager->find($imageId);
                     if ($image !== null) {
-                        $this->handleManipulation($image);
+                        $mediaManager->delete($image);
                     }
                 }
             }
             if (array_key_exists('pdfId', $contentWithLocale)) {
                 $pdfId = $contentWithLocale['pdfId'];
                 if ($pdfId !== null) {
-                    $pdf = $this->get('sonata.media.manager.media')->find($pdfId);
+                    $pdf = $mediaManager->find($pdfId);
                     if ($pdf !== null) {
-                        $this->handleManipulation($pdf);
+                        $mediaManager->delete($pdf);
                     }
                 }
             }
         }
-        $mediaManager = $this->container->get('sonata.media.manager.media');
+
         $imagId = $content->getImageId();
         if ($imagId !== null) {
 
