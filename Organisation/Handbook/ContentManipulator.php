@@ -7,6 +7,17 @@ use Doctrine\Common\Collections\Criteria;
 
 class ContentManipulator extends BaseController
 {
+    private function deleteContentMedia($fieldName, $content)
+    {
+        $mediaManager = $this->container->get('sonata.media.manager.media');
+        $mediaList = $mediaManager->findBy([$fieldName => $content->getId()]);
+        if ($mediaList !== null) {
+            foreach ($mediaList as $media) {
+                $mediaManager->delete($media);
+            }
+        }
+    }
+
     public function deleteContent(Content $content)
     {
         $mediaManager = $this->container->get('sonata.media.manager.media');
@@ -15,15 +26,8 @@ class ContentManipulator extends BaseController
         $em = $this->getDoctrine()->getManager();
         $repository = $em->getRepository('Gedmo\Translatable\Entity\Translation');
 
-//        $criteria = Criteria::create();
-//        $expr = $criteria->expr();
-//        $criteria->andWhere($expr->orX($expr->eq('imageHandbookContent', $content), $expr->eq('pdfHandbookContent', $content)));
-        $mediaList = $mediaManager->findBy(['imageHandbookContent'=>$content->getId(),'pdfHandbookContent'=>$content->getId()]);
-        if ($mediaList !== null) {
-            foreach ($mediaList as $media) {
-                $mediaManager->delete($media);
-            }
-        }
+        $this->deleteContentMedia('imageHandbookContent',$content);
+        $this->deleteContentMedia('pdfHandbookContent',$content);
 
 //        $translations = $repository->findTranslations($content);
 //        if (isset($translations[$locale])) {
