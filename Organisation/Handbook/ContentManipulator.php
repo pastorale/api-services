@@ -15,10 +15,10 @@ class ContentManipulator extends BaseController
         $em = $this->getDoctrine()->getManager();
         $repository = $em->getRepository('Gedmo\Translatable\Entity\Translation');
 
-        $criteria = Criteria::create();
-        $expr = $criteria->expr();
-        $criteria->andWhere($expr->orX($expr->eq('imageHandbookContent', $content), $expr->eq('pdfHandbookContent', $content)));
-        $mediaList = $mediaManager->findBy($criteria);
+//        $criteria = Criteria::create();
+//        $expr = $criteria->expr();
+//        $criteria->andWhere($expr->orX($expr->eq('imageHandbookContent', $content), $expr->eq('pdfHandbookContent', $content)));
+        $mediaList = $mediaManager->findBy(['imageHandbookContent'=>$content,'pdfHandbookContent'=>$content]);
         if ($mediaList !== null) {
             foreach ($mediaList as $media) {
                 $mediaManager->delete($media);
