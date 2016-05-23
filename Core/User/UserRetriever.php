@@ -55,7 +55,7 @@ class UserRetriever extends BaseController
         $cache = $this->container->get('memory_cache');
         $cachedUser = $cache->getValue($cache_ns, $container->get('security.token_storage')->getToken()->getUsername());
         if (empty($cachedUser)) {
-            throw new Exception('user was not cached properly'); // properly not yet logged in ???
+            return $this->getUser();
         }
 
         $uid = $cachedUser['id'];
