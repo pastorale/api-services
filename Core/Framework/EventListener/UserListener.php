@@ -16,6 +16,7 @@ class UserListener
 
         $entityManager = $args->getEntityManager();
         $entity->setUsername($entity->getEmail());
+        $entity->setUsernameCanonical($entity->getEmail());
 
     }
 }
