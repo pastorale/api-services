@@ -47,6 +47,9 @@ class UserRetriever extends BaseController
         return $this->decodeUserKey($this->container->get('security.token_storage')->getToken()->getUsername())['mode'];
     }
 
+    /**
+     * @return User|mixed
+     */
     public function getLoggedinUser()
     {
         $container = $this->container;
