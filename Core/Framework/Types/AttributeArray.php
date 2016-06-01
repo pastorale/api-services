@@ -11,7 +11,7 @@ class AttributeArray extends Type
     public function convertToDatabaseValue($value, AbstractPlatform $platform)
     {
         foreach ($value as $itemKey => $itemValue) {
-            $value[$itemKey] .= '[' . $itemValue . ']';
+            $value[$itemKey] = '[' . $itemValue . ']';
         }
         $attribute = implode(',', $value);
         return $attribute;
