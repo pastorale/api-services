@@ -54,18 +54,27 @@ trait RetrievalTrait
         )));
     }
 
-    protected function filter(Request $request, QueryBuilder $queryBuilder)
+    /**
+     * @return null|array
+     */
+    protected function getChildClasses()
+    {
+        return null;
+    }
+
+    protected
+    function filter(Request $request, QueryBuilder $queryBuilder)
     {
         $searchQuery = $request->query->get('search');
         $searches = explode(',', $searchQuery);
         foreach ($searches as $search) {
             // test string: user.email:dinis.bean-123df@dfecio.yahoo.com,   https://regex101.com/#pcre
-            preg_match('/(\w+?.\w+?)(:|!:|<|>|<=|>=|==|!=|{null})(%?[a-zA-Z0-9_.@-]+?%?),/', $search . ',', $matches);
+            preg_match('/(\w+?.\w+?)(:|!:|<|>|<=|>=|==|!=|{null}|{instance-of})(%?[a-zA-Z0-9_.@-]+?%?),/', $search . ',', $matches);
 
             //            preg_match('/(\w+?).(\w+?)(:|!:|<|>|<=|>=|==|!=|{null})(%?\w+?%?),/', $search . ',', $matches);
 //            preg_match('/(\w+?).(\w+?)(:|!:|<|>|<=|>=|==|!=|{null})(%?\w+( +\w+)+%?),/', $search . ',', $matches); // to match a phrase
             if (count($matches) == 4) {
-//                $objLabel = preg_replace('/[^[:alpha:]]/', '', $matches[1]);
+                $objLabel = preg_replace('/[^[:alpha:]]/', '', $matches[1]);
 //                $valueLabel = preg_replace('/[^[:alpha:]]/', '', $matches[2]);
 //                $fieldLabel = $objLabel . '.' . $valueLabel;
 //                $paramLabel = $objLabel . '_' . $valueLabel;
@@ -74,6 +83,16 @@ trait RetrievalTrait
                 $searchValue = $matches[3];
                 $comparison = $matches[2];
                 switch ($comparison) {
+                    case '{instance-of}':
+                        $childClasses = $this->getChildClasses();
+                        if ($childClasses === null) {
+                            break;
+                        }
+                        $children = explode(',', $searchValue);
+                        foreach ($children as $child) {
+                            $queryBuilder->andWhere($objLabel . ' INSTANCE OF  :childClass' . ucfirst($child))->setParameter('childClass' . ucfirst($child), $childClasses[$child]);
+                        }
+                        break;
                     case '{null}':
                         if ($searchValue) {
                             $queryBuilder->andWhere($queryBuilder->expr()->isNull($fieldLabel));
@@ -109,8 +128,11 @@ trait RetrievalTrait
             }
         }
 
+
 //        $dql = $queryBuilder->getDQL();
 //        $sql = $queryBuilder->getQuery()->getSQL();
+
+
         return $queryBuilder;
     }
 
@@ -123,7 +145,8 @@ trait RetrievalTrait
      * @param bool|true $fetchJoinCollection
      * @return PaginatedRepresentation
      */
-    protected function prepare(Request $request, QueryBuilder $queryBuilder, $route, $routeParams, $fetchJoinCollection = true)
+    protected
+    function prepare(Request $request, QueryBuilder $queryBuilder, $route, $routeParams, $fetchJoinCollection = true)
     {
         $pagerfantaFactory = new PagerfantaFactory();
         // $paginatedCollection
@@ -139,7 +162,8 @@ trait RetrievalTrait
      * @param bool $fetchJoinCollection
      * @return Pagerfanta
      */
-    protected function paginate(Request $request, QueryBuilder $queryBuilder, $fetchJoinCollection = true, $useOutputWalkers = false)
+    protected
+    function paginate(Request $request, QueryBuilder $queryBuilder, $fetchJoinCollection = true, $useOutputWalkers = false)
     {
         $limit = $request->query->getInt('limit');
         $page = $request->query->getInt('page');
