@@ -19,7 +19,7 @@ class AttributeArray extends Type
 
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        $attributes = explode($value);
+        $attributes = explode(',',$value);
         foreach ($attributes as $attrKey => $attrValue) {
             $attributes[$attrKey] = substr($attrValue, 1, -1);
         }
