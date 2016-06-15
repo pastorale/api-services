@@ -20,8 +20,8 @@ trait RetrievalTrait
         if (empty($object)) {
             return $this->returnMessage($msg, 404);
         } else {
-            if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::VIEW, $object)) {
-//                $this->container->get('app.core.security.authority')->nullifyProperties($object);
+//            if ($this->container->get('security.authorization_checker')->isGranted(BaseVoter::VIEW, $object)) {
+                $this->container->get('app.core.security.authority')->nullifyProperties($object);
                 return $this->handleView($this->view($object, 200));
             } else {
                 return $this->returnMessage('Unauthorised access', 401); // if no voter, default is denied
