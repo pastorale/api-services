@@ -57,13 +57,19 @@ class MediaManipulator extends BaseController
                     return $this->returnMessage('please submit a correct video format', 400);
                 }
             }
+            
             if ($contentType === 'application/octet-stream') {
                 $media->setVideo(true);
                 $media->setAudio(false);
             } elseif ($contentType === 'audio/x-wav') {
                 $media->setVideo(false);
                 $media->setAudio(true);
+            } elseif ($contentType === 'video/webm') {
+                $media->setVideo(true);
+                $media->setAudio(true);
+                $media->setProcessed(true);
             }
+            
             $media->setPhoto(false);
             $media->setEnabled(true);
             return $media;
