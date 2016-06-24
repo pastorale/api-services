@@ -59,6 +59,7 @@ class MediaManipulator extends BaseController
             }
             
             if ($contentType === 'application/octet-stream') {
+                $media->setName($form->get('name')->getData());
                 $media->setVideo(true);
                 $media->setAudio(false);
             } elseif ($contentType === 'audio/x-wav') {
@@ -68,6 +69,7 @@ class MediaManipulator extends BaseController
                 $media->setVideo(true);
                 $media->setAudio(true);
                 $media->setProcessed(true);
+                $media->setName($form->get('name')->getData());
             }
             
             $media->setPhoto(false);
