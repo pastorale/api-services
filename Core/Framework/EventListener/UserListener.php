@@ -19,12 +19,12 @@ class UserListener
         if (!$entity instanceof User) {
             return;
         }
-        $entityManager = $args->getEntityManager();
-        $entity->setUsername($entity->getEmail());
-        $entity->setUsernameCanonical($entity->getEmail());
-        $entity->setEmailCanonical($entity->getEmail());
-        $entity->setCode(uniqid());
-        $entityManager->persist($entity);
-        $entityManager->flush();
+//        $entityManager = $args->getEntityManager();
+//        $entity->setUsername($entity->getEmail());
+//        $entity->setUsernameCanonical($entity->getEmail());
+//        $entity->setEmailCanonical($entity->getEmail());
+//        $entity->setCode(uniqid());
+//        $entityManager->persist($entity);//loop vo tan
+//        $entityManager->flush();
     }
 }
