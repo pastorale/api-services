@@ -1,6 +1,7 @@
 <?php
 namespace AppBundle\Services\Core\Framework\Traits;
 
+use AppBundle\Model\Organisation\Handbook\Handbook;
 use AppBundle\Security\Authorisation\Voter\BaseVoter;
 use Doctrine\ORM\QueryBuilder;
 
@@ -12,6 +13,7 @@ use Pagerfanta\Pagerfanta;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\HttpFoundation\Request;
+use Hateoas\Representation\CollectionRepresentation;
 
 trait RetrievalTrait
 {
@@ -52,6 +54,62 @@ trait RetrievalTrait
             $pagerfanta,
             new Route($route, $routeParams)
         )));
+    }
+
+    protected function handlePaginationWithModelHandbook(Request $request, QueryBuilder $queryBuilder, $route, $routeParams, $fetchJoinCollection = true)
+    {
+        $pagerfantaFactory = new PagerfantaFactory();
+        $pagerfanta = $this->paginate($request, $this->filter($request, $queryBuilder), $fetchJoinCollection);
+
+        $currentPageResults = $pagerfanta->getCurrentPageResults();
+        foreach ($currentPageResults as $object) {
+            if (!$this->container->get('security.authorization_checker')->isGranted('LIST', $object)) {
+                return $this->returnMessage('Unauthorised operation', 401);
+            }
+            break;
+        }
+
+        foreach ($currentPageResults as $object) {
+            $this->container->get('app.core.security.authority')->nullifyProperties($object);
+        }
+
+
+        $pager = $pagerfanta;
+        $route = new Route($route, $routeParams);
+
+        $user = $request->get('user');
+        $modelHandbooks = new \ArrayIterator();
+        foreach ($currentPageResults as $object) {
+            $modelHandbook = new Handbook();
+            $modelHandbook->setId($object->getId());
+            $modelHandbook->setTitle($object->getTitle());
+            $modelHandbook->setOrganisation($object->getOrganisation()->getId());
+            $modelHandbook->setBlocked($this->container->get('app.core.security.acl')->isBlocked(null, $object,$user));
+
+            //add more field to model handbook from handbook entity here
+
+            //
+
+            $modelHandbooks->append($modelHandbook);
+
+        }
+
+        $inline = new CollectionRepresentation($modelHandbooks);
+        $view = new PaginatedRepresentation(
+            $inline,
+            $route->getName(),
+            $route->getParameters(),
+            $pager->getCurrentPage(),
+            $pager->getMaxPerPage(),
+            $pager->getNbPages(),
+            null,
+            null,
+            $route->isAbsolute(),
+            $pager->getNbResults()
+        );
+
+        // $paginatedCollection
+        return $this->handleView($this->view($view));
     }
 
     /**
