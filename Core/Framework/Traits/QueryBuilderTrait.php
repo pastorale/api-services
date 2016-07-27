@@ -126,7 +126,7 @@ trait QueryBuilderTrait
             }
             $qB = $this->prepareCollectionQB($owned, $ownedAlias, $leftJoinArray, $joinArray, $conditionArray);
             $qB->where($qB->expr()->eq($ownerAlias . '.id', ':id'))->setParameter('id', $ownerId);
-        } else { // if the owned doesn't know that he/she is owned by the owner.
+        } else { // unidirectional association: if the owned doesn't know that he/she is owned by the owner.
             if (array_key_exists('sub-query', $conditionArray)) {
                 $subQueryConditionArray = $conditionArray['sub-query'];
             }
