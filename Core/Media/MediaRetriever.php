@@ -31,7 +31,7 @@ class MediaRetriever extends BaseController
     public function getPublicURL(Media $media,$context='default',$format='reference')
     {
         $provider = $this->get('sonata.media.provider.image');
-        $urlNotTrue =  $provider->generatePublicUrl($media,$context.'_'.$format);
+        $urlNotTrue =  $provider->generatePublicUrl($media,$format);
         $dir = $this->getParameter('s3_directory');
         $region = $this->getParameter('s3_region');
         $host = 'https://s3-'.$region.'.amazonaws.com';
@@ -40,7 +40,7 @@ class MediaRetriever extends BaseController
 
         $arr= explode($bucket,$urlNotTrue);
         $endUrl =  $arr[1];
-        return $host.'/'.$bucket.'/'.$dir . $endUrl;
+        return $host.'/'.$bucket.'/'.$dir .'/'. $endUrl;
 
     }
 
