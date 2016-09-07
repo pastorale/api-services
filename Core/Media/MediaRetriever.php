@@ -30,6 +30,7 @@ class MediaRetriever extends BaseController
 //    }
     public function getPublicURL(Media $media,$context='default',$format='reference')
     {
+        return 'https://s3-ap-southeast-1.amazonaws.com/magenta-consulting.com/live//0001/01/08b789b9143c5e53b257dd6b49a1d933c9516222.jpeg';
         $provider = $this->get('sonata.media.provider.image');
         $urlNotTrue =  $provider->generatePublicUrl($media,$format);
         $dir = $this->getParameter('s3_directory');
