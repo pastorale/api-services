@@ -35,7 +35,7 @@ class MediaManipulator extends BaseController
      * @param null $allowedContentType
      * @return View|mixed|object|Media
      */
-    public function handleMediumPost($providerName = 'sonata.media.provider.file', $allowedContentType = null)
+    public function handleMediumPost($providerName = 'sonata.media.provider.file', $allowedContentType = null,$context='default')
     {
         $mediaManager = $this->get('sonata.media.manager.media');
         $media = $mediaManager->create();
@@ -50,6 +50,7 @@ class MediaManipulator extends BaseController
         $form->handleRequest($request);
         if ($form->isValid()) {
             $media = $form->getData();
+            $media->setContext($context);
             $contentType = $media->getContentType();
             if ($allowedContentType !== null) {
 //                if ( $contentType !== 'application/octet-stream' && $contentType !== 'audio/x-wav') {
