@@ -40,7 +40,7 @@ class MediaRetriever extends BaseController
 
         $arr= explode($bucket,$urlNotTrue);
         $endUrl =  $arr[1];
-        return $host.'/'.$bucket.'/'.$dir .'/'. $endUrl;
+        return $host.'/'.$bucket.'/'.$dir .($media->getContext()===null?'/':''). $endUrl;
 
     }
 
