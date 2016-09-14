@@ -52,7 +52,7 @@ class EmailMessenger extends BaseController
 
             $message = new Message();
             $this->prepareMessageContent($message,$emailTemplate,$vars);
-            $this->sendMessage($message,'magenta@magenta.com',$user['email']);
+            $this->sendMessage($message,'noreply@magentapulse.com',$user['email']);
 
         }
 
