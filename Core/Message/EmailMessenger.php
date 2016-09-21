@@ -42,11 +42,17 @@ class EmailMessenger extends BaseController
         $type = $data['type'];
         $users =$data['users'];
         $emailTemplate = $this->getDoctrine()->getRepository('AppBundle:Core\Message\MessageTemplate')->findOneByCode($type);
+        $userManager = $this->get('fos_user.user_manager');
+        $plainPassword = 'p@ssword';
         foreach ($users as $user){
+            $userEntity = $userManager->findUserByUsername($user['web_username']);
+            $userEntity->setPlainPassword($plainPassword);
+            $userManager->updateUser($userEntity);
+
             $vars['COMPANY_NAME'] = $organisation->getName();
             $vars['FULL_NAME'] = $user['full_name'];
             $vars['WEB_USERNAME']=$user['web_username'];
-            $vars['WEB_PASSWORD']='p@ssword';
+            $vars['WEB_PASSWORD']=$plainPassword;
             $vars['APP_USERNAME']=$organisation->getCode();
             $vars['APP_PASSWORD']=$user['app_password'];
 
