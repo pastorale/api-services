@@ -43,7 +43,8 @@ class EmailMessenger extends BaseController
         $users =$data['users'];
         $emailTemplate = $this->getDoctrine()->getRepository('AppBundle:Core\Message\MessageTemplate')->findOneByCode($type);
         $userManager = $this->get('fos_user.user_manager');
-        $plainPassword = 'p@ssword';
+        $generator = $this->get('app.core.core.generator');
+        $plainPassword =$generator::generateRandomString(6);
         foreach ($users as $user){
             $userEntity = $userManager->findUserByUsername($user['web_username']);
             $userEntity->setPlainPassword($plainPassword);
